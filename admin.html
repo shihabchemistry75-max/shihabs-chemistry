@@ -46,7 +46,6 @@
 </style>
 </head>
 <body>
-
 <header>
   <div class="wrap">
     <h1>🧪 SHIHAB'S CHEMISTRY — Admin</h1>
@@ -63,7 +62,10 @@
   <label>ইমেইল</label>
   <input type="email" id="loginEmail" value="shihabchemistry75@gmail.com">
   <label>পাসওয়ার্ড</label>
-  <input type="password" id="loginPassword">
+  <div style="position:relative;">
+    <input type="password" id="loginPassword" style="padding-right:44px;">
+    <button type="button" id="toggleLoginPassword" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:18px; padding:4px;">👁️</button>
+  </div>
   <button class="btn-primary" id="loginBtn" style="width:100%;">লগইন করো</button>
   <p id="loginError" style="color:var(--accent-2); font-size:13px; margin-top:10px;"></p>
 </div>
@@ -72,11 +74,13 @@
   <h2>তোমার অ্যাডমিন পাসওয়ার্ড সেট করো</h2>
   <p style="font-size:13px; color:var(--ink-soft); margin-top:-6px;">এই পাসওয়ার্ড দিয়েই পরের বার থেকে লগইন করবে। অন্তত ৬ ক্যারেক্টার দাও।</p>
   <label>নতুন পাসওয়ার্ড</label>
-  <input type="password" id="newPassword">
+  <div style="position:relative;">
+    <input type="password" id="newPassword" style="padding-right:44px;">
+    <button type="button" id="toggleNewPassword" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:18px; padding:4px;">👁️</button>
+  </div>
   <button class="btn-primary" id="setPasswordBtn" style="width:100%;">পাসওয়ার্ড সেভ করো</button>
   <p id="setPasswordError" style="color:var(--accent-2); font-size:13px; margin-top:10px;"></p>
 </div>
-
 <div id="app" class="wrap hidden">
   <p id="status"></p>
 
@@ -117,7 +121,6 @@
     </div>
     <button class="btn-primary" id="bAddBtn">যোগ করো</button>
   </section>
-
   <!-- COURSES -->
   <section data-panel="courses" class="card hidden">
     <h2>কোর্স তালিকা</h2>
@@ -156,7 +159,6 @@
     </div>
     <button class="btn-primary" id="rAddBtn">যোগ করো</button>
   </section>
-
   <!-- RESOURCES -->
   <section data-panel="resources" class="card hidden">
     <h2>রিসোর্স (চ্যাপ্টার → টপিক → লিংক)</h2>
@@ -190,7 +192,6 @@
     <button class="btn-primary" id="resAddBtn">টপিক যোগ করো</button>
   </section>
 </div>
-
 <script>
 (function(){
   var SUPA_URL = 'https://ciojnacincwcqlnwjkvo.supabase.co';
@@ -214,7 +215,6 @@
   }
 
   function escapeHtml(s){ return String(s==null?'':s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-
   /* -------- AUTH -------- */
   sb.auth.onAuthStateChange(function(event, session){
     if(event === 'PASSWORD_RECOVERY'){
@@ -269,6 +269,17 @@
     refreshAuthUI();
   });
 
+  function wireEyeToggle(btnId, inputId){
+    var btn = document.getElementById(btnId);
+    var input = document.getElementById(inputId);
+    if(!btn || !input) return;
+    btn.addEventListener('click', function(){
+      if(input.type === 'password'){ input.type = 'text'; btn.textContent = '🙈'; }
+      else { input.type = 'password'; btn.textContent = '👁️'; }
+    });
+  }
+  wireEyeToggle('toggleLoginPassword', 'loginPassword');
+  wireEyeToggle('toggleNewPassword', 'newPassword');
   /* -------- TABS -------- */
   document.querySelectorAll('.tabbar button').forEach(function(btn){
     btn.addEventListener('click', function(){
@@ -310,7 +321,6 @@
     var { error } = await sb.from('site_info').upsert(payload);
     setStatus(error ? ('সেভ ব্যর্থ: '+error.message) : 'সাইট তথ্য সেভ হয়েছে ✓', !!error);
   });
-
   /* -------- BATCHES -------- */
   async function loadBatches(){
     var { data, error } = await sb.from('batches').select('*').order('sort_order');
@@ -340,7 +350,6 @@
     setStatus(error ? error.message : 'ব্যাচ যোগ হয়েছে ✓', !!error);
     if(!error){ document.getElementById('bNewId').value=''; document.getElementById('bNewLabel').value=''; loadBatches(); }
   });
-
   /* -------- COURSES -------- */
   async function loadCourses(){
     var { data, error } = await sb.from('courses').select('*').order('sort_order');
@@ -387,7 +396,6 @@
       loadCourses();
     }
   });
-
   /* -------- ROUTINE -------- */
   async function loadRoutine(){
     var { data, error } = await sb.from('routine').select('*').order('sort_order');
@@ -422,7 +430,6 @@
       loadRoutine();
     }
   });
-
   /* -------- RESOURCES (subject → chapter → topic → 4 link types) -------- */
   var RES_TYPE_LABEL = {pdf:'📄 PDF', infographic:'🖼️ ইনফোগ্রাফিক', video:'▶️ ভিডিও', animation:'🎞️ অ্যানিমেশন'};
   var SUBJECT_LABEL = {chemistry:'রসায়ন', physics:'পদার্থবিজ্ঞান', biology:'জীববিজ্ঞান', math:'গণিত', english:'ইংরেজি', gk:'সাধারণ জ্ঞান'};
@@ -471,7 +478,6 @@
       });
     });
   }
-
   document.getElementById('resAddBtn').addEventListener('click', async function(){
     var subject = document.getElementById('resNewSubject').value;
     var chapter = document.getElementById('resNewChapter').value.trim();
