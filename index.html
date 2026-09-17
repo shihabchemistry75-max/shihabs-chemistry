@@ -447,9 +447,9 @@
             <h3 class="bn" id="instructorName" style="font-size:19px; margin-bottom:4px;">SHIHAB SIR</h3>
             <p class="bn" id="instructorBio" style="font-size:14px;">প্রতিষ্ঠাতা, SHIHAB'S ADMISSION CARE ও REDOX PUBLICATION। খুলনা বিশ্ববিদ্যালয়ের রসায়ন বিভাগ থেকে অধ্যয়নরত, ৮+ বছর ধরে HSC ও ভর্তি পরীক্ষার্থীদের রসায়ন পড়াচ্ছেন।</p>
             <div class="faculty-credit">
-              <span class="pill bn">Khulna University</span>
-              <span class="pill bn">REDOX PUBLICATION</span>
-              <span class="pill bn">৮+ বছরের অভিজ্ঞতা</span>
+              <span class="pill bn" id="instructorCredit1">Khulna University</span>
+              <span class="pill bn" id="instructorCredit2">REDOX PUBLICATION</span>
+              <span class="pill bn" id="instructorCredit3">৮+ বছরের অভিজ্ঞতা</span>
             </div>
           </div>
         </div>
@@ -732,6 +732,9 @@
       if(!siteInfo) return;
       if(siteInfo.instructor_name) document.getElementById('instructorName').textContent = siteInfo.instructor_name;
       if(siteInfo.instructor_bio) document.getElementById('instructorBio').textContent = siteInfo.instructor_bio;
+      if(siteInfo.instructor_credit1) document.getElementById('instructorCredit1').textContent = siteInfo.instructor_credit1;
+      if(siteInfo.instructor_credit2) document.getElementById('instructorCredit2').textContent = siteInfo.instructor_credit2;
+      if(siteInfo.instructor_credit3) document.getElementById('instructorCredit3').textContent = siteInfo.instructor_credit3;
     }catch(e){}
   }
 
