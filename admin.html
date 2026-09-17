@@ -59,13 +59,22 @@
 
 <div id="loginBox" class="card hidden">
   <h2>অ্যাডমিন লগইন</h2>
-  <p style="font-size:13px; color:var(--ink-soft); margin-top:-6px;">তোমার Supabase invite ইমেইল থেকে সেট করা পাসওয়ার্ড দিয়ে লগইন করো।</p>
+  <p style="font-size:13px; color:var(--ink-soft); margin-top:-6px;">তোমার সেট করা পাসওয়ার্ড দিয়ে লগইন করো।</p>
   <label>ইমেইল</label>
   <input type="email" id="loginEmail" value="shihabchemistry75@gmail.com">
   <label>পাসওয়ার্ড</label>
   <input type="password" id="loginPassword">
   <button class="btn-primary" id="loginBtn" style="width:100%;">লগইন করো</button>
   <p id="loginError" style="color:var(--accent-2); font-size:13px; margin-top:10px;"></p>
+</div>
+
+<div id="setPasswordBox" class="card hidden">
+  <h2>তোমার অ্যাডমিন পাসওয়ার্ড সেট করো</h2>
+  <p style="font-size:13px; color:var(--ink-soft); margin-top:-6px;">এই পাসওয়ার্ড দিয়েই পরের বার থেকে লগইন করবে। অন্তত ৬ ক্যারেক্টার দাও।</p>
+  <label>নতুন পাসওয়ার্ড</label>
+  <input type="password" id="newPassword">
+  <button class="btn-primary" id="setPasswordBtn" style="width:100%;">পাসওয়ার্ড সেভ করো</button>
+  <p id="setPasswordError" style="color:var(--accent-2); font-size:13px; margin-top:10px;"></p>
 </div>
 
 <div id="app" class="wrap hidden">
@@ -187,12 +196,14 @@
   var sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
   var loginBox = document.getElementById('loginBox');
+  var setPasswordBox = document.getElementById('setPasswordBox');
   var app = document.getElementById('app');
   var logoutBtn = document.getElementById('logoutBtn');
   var whoami = document.getElementById('whoami');
   var statusEl = document.getElementById('status');
 
   var batchesCache = [];
+  var inRecovery = false;
 
   function setStatus(msg, isErr){
     statusEl.textContent = msg || '';
@@ -203,16 +214,39 @@
   function escapeHtml(s){ return String(s==null?'':s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
   /* -------- AUTH -------- */
+  sb.auth.onAuthStateChange(function(event, session){
+    if(event === 'PASSWORD_RECOVERY'){
+      inRecovery = true;
+      loginBox.classList.add('hidden');
+      app.classList.add('hidden');
+      setPasswordBox.classList.remove('hidden');
+    }
+  });
+
+  document.getElementById('setPasswordBtn').addEventListener('click', async function(){
+    var pw = document.getElementById('newPassword').value;
+    document.getElementById('setPasswordError').textContent = '';
+    if(!pw || pw.length < 6){ document.getElementById('setPasswordError').textContent = 'অন্তত ৬ ক্যারেক্টারের পাসওয়ার্ড দাও।'; return; }
+    var { error } = await sb.auth.updateUser({ password: pw });
+    if(error){ document.getElementById('setPasswordError').textContent = 'সেভ করা যায়নি: ' + error.message; return; }
+    inRecovery = false;
+    setPasswordBox.classList.add('hidden');
+    refreshAuthUI();
+  });
+
   async function refreshAuthUI(){
+    if(inRecovery) return;
     var { data } = await sb.auth.getSession();
     if(data && data.session){
       loginBox.classList.add('hidden');
+      setPasswordBox.classList.add('hidden');
       app.classList.remove('hidden');
       logoutBtn.classList.remove('hidden');
       whoami.textContent = data.session.user.email;
       loadEverything();
     } else {
       loginBox.classList.remove('hidden');
+      setPasswordBox.classList.add('hidden');
       app.classList.add('hidden');
       logoutBtn.classList.add('hidden');
       whoami.textContent = '';
