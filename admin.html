@@ -46,6 +46,7 @@
 </style>
 </head>
 <body>
+
 <header>
   <div class="wrap">
     <h1>🧪 SHIHAB'S CHEMISTRY — Admin</h1>
@@ -81,6 +82,7 @@
   <button class="btn-primary" id="setPasswordBtn" style="width:100%;">পাসওয়ার্ড সেভ করো</button>
   <p id="setPasswordError" style="color:var(--accent-2); font-size:13px; margin-top:10px;"></p>
 </div>
+
 <div id="app" class="wrap hidden">
   <p id="status"></p>
 
@@ -102,6 +104,12 @@
     </div>
     <label>ইনস্ট্রাক্টর বায়ো</label>
     <textarea id="siBio"></textarea>
+    <label style="margin-top:4px;">ইনস্ট্রাক্টরের ব্যাজ / ক্রেডিট (৩টা ছোট ট্যাগ, বায়োর নিচে দেখা যায়)</label>
+    <div class="row">
+      <div><label>ব্যাজ ১</label><input type="text" id="siCredit1" placeholder="Khulna University"></div>
+      <div><label>ব্যাজ ২</label><input type="text" id="siCredit2" placeholder="REDOX PUBLICATION"></div>
+      <div><label>ব্যাজ ৩</label><input type="text" id="siCredit3" placeholder="৮+ বছরের অভিজ্ঞতা"></div>
+    </div>
     <div class="row">
       <div><label>বিকাশ নম্বর</label><input type="text" id="siBkash"></div>
       <div><label>নগদ নম্বর</label><input type="text" id="siNagad"></div>
@@ -121,6 +129,7 @@
     </div>
     <button class="btn-primary" id="bAddBtn">যোগ করো</button>
   </section>
+
   <!-- COURSES -->
   <section data-panel="courses" class="card hidden">
     <h2>কোর্স তালিকা</h2>
@@ -159,6 +168,7 @@
     </div>
     <button class="btn-primary" id="rAddBtn">যোগ করো</button>
   </section>
+
   <!-- RESOURCES -->
   <section data-panel="resources" class="card hidden">
     <h2>রিসোর্স (চ্যাপ্টার → টপিক → লিংক)</h2>
@@ -192,6 +202,7 @@
     <button class="btn-primary" id="resAddBtn">টপিক যোগ করো</button>
   </section>
 </div>
+
 <script>
 (function(){
   var SUPA_URL = 'https://ciojnacincwcqlnwjkvo.supabase.co';
@@ -215,6 +226,7 @@
   }
 
   function escapeHtml(s){ return String(s==null?'':s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
   /* -------- AUTH -------- */
   sb.auth.onAuthStateChange(function(event, session){
     if(event === 'PASSWORD_RECOVERY'){
@@ -280,6 +292,7 @@
   }
   wireEyeToggle('toggleLoginPassword', 'loginPassword');
   wireEyeToggle('toggleNewPassword', 'newPassword');
+
   /* -------- TABS -------- */
   document.querySelectorAll('.tabbar button').forEach(function(btn){
     btn.addEventListener('click', function(){
@@ -305,6 +318,9 @@
     document.getElementById('siHero').value = data.hero_batch_line || '';
     document.getElementById('siName').value = data.instructor_name || '';
     document.getElementById('siBio').value = data.instructor_bio || '';
+    document.getElementById('siCredit1').value = data.instructor_credit1 || '';
+    document.getElementById('siCredit2').value = data.instructor_credit2 || '';
+    document.getElementById('siCredit3').value = data.instructor_credit3 || '';
     document.getElementById('siBkash').value = data.phone_bkash || '';
     document.getElementById('siNagad').value = data.phone_nagad || '';
   }
@@ -314,6 +330,9 @@
       hero_batch_line: document.getElementById('siHero').value,
       instructor_name: document.getElementById('siName').value,
       instructor_bio: document.getElementById('siBio').value,
+      instructor_credit1: document.getElementById('siCredit1').value,
+      instructor_credit2: document.getElementById('siCredit2').value,
+      instructor_credit3: document.getElementById('siCredit3').value,
       phone_bkash: document.getElementById('siBkash').value,
       phone_nagad: document.getElementById('siNagad').value,
       updated_at: new Date().toISOString()
@@ -321,6 +340,7 @@
     var { error } = await sb.from('site_info').upsert(payload);
     setStatus(error ? ('সেভ ব্যর্থ: '+error.message) : 'সাইট তথ্য সেভ হয়েছে ✓', !!error);
   });
+
   /* -------- BATCHES -------- */
   async function loadBatches(){
     var { data, error } = await sb.from('batches').select('*').order('sort_order');
@@ -350,6 +370,7 @@
     setStatus(error ? error.message : 'ব্যাচ যোগ হয়েছে ✓', !!error);
     if(!error){ document.getElementById('bNewId').value=''; document.getElementById('bNewLabel').value=''; loadBatches(); }
   });
+
   /* -------- COURSES -------- */
   async function loadCourses(){
     var { data, error } = await sb.from('courses').select('*').order('sort_order');
@@ -396,6 +417,7 @@
       loadCourses();
     }
   });
+
   /* -------- ROUTINE -------- */
   async function loadRoutine(){
     var { data, error } = await sb.from('routine').select('*').order('sort_order');
@@ -430,6 +452,7 @@
       loadRoutine();
     }
   });
+
   /* -------- RESOURCES (subject → chapter → topic → 4 link types) -------- */
   var RES_TYPE_LABEL = {pdf:'📄 PDF', infographic:'🖼️ ইনফোগ্রাফিক', video:'▶️ ভিডিও', animation:'🎞️ অ্যানিমেশন'};
   var SUBJECT_LABEL = {chemistry:'রসায়ন', physics:'পদার্থবিজ্ঞান', biology:'জীববিজ্ঞান', math:'গণিত', english:'ইংরেজি', gk:'সাধারণ জ্ঞান'};
@@ -478,6 +501,7 @@
       });
     });
   }
+
   document.getElementById('resAddBtn').addEventListener('click', async function(){
     var subject = document.getElementById('resNewSubject').value;
     var chapter = document.getElementById('resNewChapter').value.trim();
