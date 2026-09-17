@@ -939,7 +939,8 @@
     {id:"gk", label:"সাধারণ জ্ঞান"}
   ];
   var activeResSubject = "all";
-  var RES_ICON = {pdf:"📄", video:"▶️", infographic:"🖼️"};
+  var RES_ICON = {pdf:"📄", video:"▶️", infographic:"🖼️", animation:"🎞️"};
+  var RES_LABEL = {pdf:"PDF", video:"ভিডিও", infographic:"ইনফোগ্রাফিক", animation:"অ্যানিমেশন"};
 
   function renderResources(){
     try{
@@ -955,16 +956,26 @@
       }
       var byChapter = {};
       items.forEach(function(r){
-        var key = (r.chapter || "অন্যান্য");
-        if(!byChapter[key]) byChapter[key] = [];
-        byChapter[key].push(r);
+        var chKey = (r.chapter || "অন্যান্য");
+        var topKey = (r.topic || r.title || "অন্যান্য");
+        byChapter[chKey] = byChapter[chKey] || {};
+        byChapter[chKey][topKey] = byChapter[chKey][topKey] || [];
+        byChapter[chKey][topKey].push(r);
       });
       list.innerHTML = Object.keys(byChapter).map(function(ch){
+        var topics = byChapter[ch];
         return '<div class="card"><h3 class="bn" style="font-size:16px; margin-bottom:12px;">'+escapeHtml(ch)+'</h3>'+
-          '<div style="display:flex; flex-direction:column; gap:8px;">'+
-          byChapter[ch].map(function(r){
-            var ic = RES_ICON[r.resource_type] || "🔗";
-            return '<a class="bn" href="'+escapeHtml(r.url)+'" target="_blank" rel="noopener" style="display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid var(--line); border-radius:10px; text-decoration:none; color:var(--ink);">'+ic+' <span>'+escapeHtml(r.title)+'</span></a>';
+          '<div style="display:flex; flex-direction:column; gap:14px;">'+
+          Object.keys(topics).map(function(top){
+            return '<div>'+
+              '<div class="bn" style="font-size:14px; font-weight:600; margin-bottom:6px;">'+escapeHtml(top)+'</div>'+
+              '<div style="display:flex; flex-wrap:wrap; gap:8px;">'+
+              topics[top].map(function(r){
+                var ic = RES_ICON[r.resource_type] || "🔗";
+                var lb = RES_LABEL[r.resource_type] || r.resource_type;
+                return '<a class="bn" href="'+escapeHtml(r.url)+'" target="_blank" rel="noopener" style="display:flex; align-items:center; gap:6px; padding:8px 14px; border:1px solid var(--line); border-radius:10px; text-decoration:none; color:var(--ink); font-size:13px;">'+ic+' <span>'+lb+'</span></a>';
+              }).join('') +
+              '</div></div>';
           }).join('') +
           '</div></div>';
       }).join('');

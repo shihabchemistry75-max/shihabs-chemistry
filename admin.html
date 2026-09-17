@@ -159,9 +159,10 @@
 
   <!-- RESOURCES -->
   <section data-panel="resources" class="card hidden">
-    <h2>রিসোর্স (PDF / ভিডিও / ইনফোগ্রাফিক)</h2>
-    <table><thead><tr><th>বিষয়</th><th>চ্যাপ্টার</th><th>টাইটেল</th><th>ধরন</th><th></th></tr></thead><tbody id="resourceTable"></tbody></table>
-    <h3 style="font-size:14px; margin-top:20px;">নতুন রিসোর্স যোগ করো</h3>
+    <h2>রিসোর্স (চ্যাপ্টার → টপিক → লিংক)</h2>
+    <div id="resourceTree"></div>
+    <h3 style="font-size:14px; margin-top:24px;">নতুন টপিক যোগ করো</h3>
+    <p style="font-size:12.5px; color:var(--ink-soft); margin-top:-8px;">প্রতিটা টপিকের জন্য যে যে লিংক আছে শুধু সেগুলোই দাও — বাকিগুলো খালি রাখতে পারো।</p>
     <div class="row">
       <div>
         <label>বিষয়</label>
@@ -176,16 +177,17 @@
       </div>
       <div><label>চ্যাপ্টার</label><input type="text" id="resNewChapter" placeholder="অধ্যায় ১: মৌলিক ধারণা"></div>
     </div>
+    <label>টপিক</label>
+    <input type="text" id="resNewTopic" placeholder="যেমন: মোলার ভর নির্ণয়">
     <div class="row">
-      <div><label>টাইটেল</label><input type="text" id="resNewTitle" placeholder="দাগানো বই পিডিএফ"></div>
-      <div>
-        <label>ধরন</label>
-        <select id="resNewType"><option value="pdf">PDF</option><option value="video">ভিডিও (YouTube)</option><option value="infographic">ইনফোগ্রাফিক</option></select>
-      </div>
+      <div><label>📄 PDF লিংক (Google Drive)</label><input type="url" id="resNewPdf" placeholder="https://drive.google.com/..."></div>
+      <div><label>🖼️ ইনফোগ্রাফিক লিংক (Google Drive)</label><input type="url" id="resNewInfographic" placeholder="https://drive.google.com/..."></div>
     </div>
-    <label>লিংক (Google Drive PDF লিংক অথবা YouTube লিংক)</label>
-    <input type="url" id="resNewUrl" placeholder="https://drive.google.com/... বা https://youtube.com/...">
-    <button class="btn-primary" id="resAddBtn">যোগ করো</button>
+    <div class="row">
+      <div><label>▶️ ভিডিও লিংক (YouTube)</label><input type="url" id="resNewVideo" placeholder="https://youtube.com/..."></div>
+      <div><label>🎞️ অ্যানিমেশন লিংক (YouTube)</label><input type="url" id="resNewAnimation" placeholder="https://youtube.com/..."></div>
+    </div>
+    <button class="btn-primary" id="resAddBtn">টপিক যোগ করো</button>
   </section>
 </div>
 
@@ -421,38 +423,78 @@
     }
   });
 
-  /* -------- RESOURCES -------- */
+  /* -------- RESOURCES (subject → chapter → topic → 4 link types) -------- */
+  var RES_TYPE_LABEL = {pdf:'📄 PDF', infographic:'🖼️ ইনফোগ্রাফিক', video:'▶️ ভিডিও', animation:'🎞️ অ্যানিমেশন'};
+  var SUBJECT_LABEL = {chemistry:'রসায়ন', physics:'পদার্থবিজ্ঞান', biology:'জীববিজ্ঞান', math:'গণিত', english:'ইংরেজি', gk:'সাধারণ জ্ঞান'};
+
   async function loadResources(){
     var { data, error } = await sb.from('resources').select('*').order('sort_order');
     if(error) return;
-    document.getElementById('resourceTable').innerHTML = (data||[]).map(function(r){
-      return '<tr><td>'+escapeHtml(r.subject)+'</td><td>'+escapeHtml(r.chapter)+'</td><td>'+escapeHtml(r.title)+'</td><td>'+escapeHtml(r.resource_type)+'</td>'+
-        '<td class="item-actions"><a href="'+escapeHtml(r.url)+'" target="_blank" rel="noopener" style="font-size:12px;">লিংক</a> <button class="btn-danger" data-del-resource="'+r.id+'">মুছো</button></td></tr>';
-    }).join('');
+    var rows = data || [];
+    // group: subject -> chapter -> topic -> [rows]
+    var tree = {};
+    rows.forEach(function(r){
+      var subj = r.subject || '—';
+      var ch = r.chapter || 'অন্যান্য';
+      var top = r.topic || r.title || 'অন্যান্য';
+      tree[subj] = tree[subj] || {};
+      tree[subj][ch] = tree[subj][ch] || {};
+      tree[subj][ch][top] = tree[subj][ch][top] || [];
+      tree[subj][ch][top].push(r);
+    });
+    var html = '';
+    Object.keys(tree).forEach(function(subj){
+      html += '<div style="margin-bottom:18px;"><b style="font-size:14px;">'+escapeHtml(SUBJECT_LABEL[subj]||subj)+'</b>';
+      Object.keys(tree[subj]).forEach(function(ch){
+        html += '<div style="margin:8px 0 0 12px;"><span class="tag">'+escapeHtml(ch)+'</span>';
+        Object.keys(tree[subj][ch]).forEach(function(top){
+          html += '<div style="margin:6px 0 0 16px; padding:8px 12px; background:var(--surface-2); border-radius:8px;">'+
+            '<div style="font-size:13.5px; font-weight:600; margin-bottom:4px;">'+escapeHtml(top)+'</div>'+
+            '<div class="item-actions" style="flex-wrap:wrap;">'+
+            tree[subj][ch][top].map(function(r){
+              return '<a href="'+escapeHtml(r.url)+'" target="_blank" rel="noopener" style="font-size:12px; background:#fff; border:1px solid var(--line); border-radius:6px; padding:3px 8px;">'+(RES_TYPE_LABEL[r.resource_type]||r.resource_type)+'</a>'+
+                '<button class="btn-danger" data-del-resource="'+r.id+'" title="মুছো">✕</button>';
+            }).join('')+
+            '</div></div>';
+        });
+        html += '</div>';
+      });
+      html += '</div>';
+    });
+    document.getElementById('resourceTree').innerHTML = html || '<p style="font-size:13px; color:var(--ink-soft);">এখনো কোনো রিসোর্স যোগ করা হয়নি।</p>';
     document.querySelectorAll('[data-del-resource]').forEach(function(btn){
       btn.addEventListener('click', async function(){
-        if(!confirm('এই রিসোর্স মুছে ফেলবে?')) return;
+        if(!confirm('এই লিংক মুছে ফেলবে?')) return;
         var { error } = await sb.from('resources').delete().eq('id', btn.dataset.delResource);
         setStatus(error ? error.message : 'মুছে ফেলা হয়েছে', !!error);
         loadResources();
       });
     });
   }
+
   document.getElementById('resAddBtn').addEventListener('click', async function(){
-    var title = document.getElementById('resNewTitle').value.trim();
-    var url = document.getElementById('resNewUrl').value.trim();
-    if(!title || !url){ alert('টাইটেল ও লিংক দাও।'); return; }
-    var payload = {
-      subject: document.getElementById('resNewSubject').value,
-      chapter: document.getElementById('resNewChapter').value.trim(),
-      title: title,
-      resource_type: document.getElementById('resNewType').value,
-      url: url
+    var subject = document.getElementById('resNewSubject').value;
+    var chapter = document.getElementById('resNewChapter').value.trim();
+    var topic = document.getElementById('resNewTopic').value.trim();
+    if(!topic){ alert('টপিকের নাম দাও।'); return; }
+    var links = {
+      pdf: document.getElementById('resNewPdf').value.trim(),
+      infographic: document.getElementById('resNewInfographic').value.trim(),
+      video: document.getElementById('resNewVideo').value.trim(),
+      animation: document.getElementById('resNewAnimation').value.trim()
     };
-    var { error } = await sb.from('resources').insert(payload);
-    setStatus(error ? error.message : 'রিসোর্স যোগ হয়েছে ✓', !!error);
+    var rowsToInsert = Object.keys(links).filter(function(k){ return links[k]; }).map(function(k){
+      return { subject: subject, chapter: chapter, topic: topic, title: topic, resource_type: k, url: links[k] };
+    });
+    if(!rowsToInsert.length){ alert('অন্তত একটা লিংক দাও।'); return; }
+    var { error } = await sb.from('resources').insert(rowsToInsert);
+    setStatus(error ? error.message : 'টপিক যোগ হয়েছে ✓', !!error);
     if(!error){
-      document.getElementById('resNewTitle').value=''; document.getElementById('resNewUrl').value=''; document.getElementById('resNewChapter').value='';
+      document.getElementById('resNewTopic').value = '';
+      document.getElementById('resNewPdf').value = '';
+      document.getElementById('resNewInfographic').value = '';
+      document.getElementById('resNewVideo').value = '';
+      document.getElementById('resNewAnimation').value = '';
       loadResources();
     }
   });
