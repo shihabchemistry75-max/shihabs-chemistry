@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — SHIHAB'S CHEMISTRY</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+  :root{
+    --bg:#FAF6EC; --surface:#FFFFFF; --surface-2:#F1ECDC;
+    --ink:#1A2E28; --ink-soft:#4B5C55;
+    --primary:#0E6B57; --primary-d:#0A4F41;
+    --accent-2:#C1502E;
+    --line:#E4DCC6;
+    --shadow: 0 1px 2px rgba(26,46,40,.04), 0 8px 24px rgba(26,46,40,.06);
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:'Hind Siliguri','Inter',sans-serif; }
+  .wrap{ max-width:960px; margin:0 auto; padding:24px 16px 80px; }
+  header{ background:var(--surface); border-bottom:1px solid var(--line); padding:16px 0; position:sticky; top:0; z-index:5; }
+  header .wrap{ padding:0 16px; display:flex; align-items:center; justify-content:space-between; }
+  h1{ font-size:18px; margin:0; }
+  h2{ font-size:17px; margin:0 0 14px; }
+  .card{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:20px; margin-bottom:20px; box-shadow:var(--shadow); }
+  label{ display:block; font-size:13px; color:var(--ink-soft); margin-bottom:4px; }
+  input,select,textarea{ width:100%; padding:9px 12px; border:1px solid var(--line); border-radius:8px; font-family:inherit; font-size:14px; background:#fff; color:var(--ink); margin-bottom:12px; }
+  textarea{ min-height:70px; resize:vertical; }
+  button{ cursor:pointer; font-family:inherit; font-weight:600; border-radius:8px; border:1px solid transparent; padding:9px 16px; font-size:14px; }
+  .btn-primary{ background:var(--primary); color:#fff; }
+  .btn-primary:hover{ background:var(--primary-d); }
+  .btn-ghost{ background:transparent; border-color:var(--line); color:var(--ink); }
+  .btn-danger{ background:transparent; border-color:var(--accent-2); color:var(--accent-2); padding:6px 10px; font-size:12.5px; }
+  .row{ display:flex; gap:12px; flex-wrap:wrap; }
+  .row > *{ flex:1; min-width:140px; }
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  th,td{ text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); vertical-align:top; }
+  .item-actions{ display:flex; gap:6px; }
+  .tag{ display:inline-block; background:var(--surface-2); border-radius:99px; padding:2px 10px; font-size:12px; margin-right:4px;}
+  #loginBox{ max-width:380px; margin:80px auto; }
+  #status{ font-size:13px; color:var(--ink-soft); min-height:18px; }
+  .hidden{ display:none !important; }
+  .tabbar{ display:flex; gap:8px; overflow-x:auto; margin-bottom:20px; }
+  .tabbar button{ background:var(--surface); border:1px solid var(--line); white-space:nowrap; }
+  .tabbar button[aria-current="true"]{ background:var(--primary); color:#fff; border-color:var(--primary); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>🧪 SHIHAB'S CHEMISTRY — Admin</h1>
+    <div>
+      <span id="whoami" style="font-size:13px; color:var(--ink-soft); margin-right:12px;"></span>
+      <button id="logoutBtn" class="btn-ghost hidden">লগআউট</button>
+    </div>
+  </div>
+</header>
+
+<div id="loginBox" class="card hidden">
+  <h2>অ্যাডমিন লগইন</h2>
+  <p style="font-size:13px; color:var(--ink-soft); margin-top:-6px;">তোমার Supabase invite ইমেইল থেকে সেট করা পাসওয়ার্ড দিয়ে লগইন করো।</p>
+  <label>ইমেইল</label>
+  <input type="email" id="loginEmail" value="shihabchemistry75@gmail.com">
+  <label>পাসওয়ার্ড</label>
+  <input type="password" id="loginPassword">
+  <button class="btn-primary" id="loginBtn" style="width:100%;">লগইন করো</button>
+  <p id="loginError" style="color:var(--accent-2); font-size:13px; margin-top:10px;"></p>
+</div>
+
+<div id="app" class="wrap hidden">
+  <p id="status"></p>
+
+  <div class="tabbar">
+    <button data-tab="site" aria-current="true">সাইট তথ্য</button>
+    <button data-tab="batches">ব্যাচ</button>
+    <button data-tab="courses">কোর্স</button>
+    <button data-tab="routine">রুটিন</button>
+    <button data-tab="resources">রিসোর্স</button>
+  </div>
+
+  <!-- SITE INFO -->
+  <section data-panel="site" class="card">
+    <h2>সাইট তথ্য / বায়ো</h2>
+    <label>হিরো ব্যাচ লাইন</label>
+    <input type="text" id="siHero">
+    <div class="row">
+      <div><label>ইনস্ট্রাক্টরের নাম</label><input type="text" id="siName"></div>
+    </div>
+    <label>ইনস্ট্রাক্টর বায়ো</label>
+    <textarea id="siBio"></textarea>
+    <div class="row">
+      <div><label>বিকাশ নম্বর</label><input type="text" id="siBkash"></div>
+      <div><label>নগদ নম্বর</label><input type="text" id="siNagad"></div>
+    </div>
+    <button class="btn-primary" id="siSaveBtn">সেভ করো</button>
+  </section>
+
+  <!-- BATCHES -->
+  <section data-panel="batches" class="card hidden">
+    <h2>ব্যাচ তালিকা</h2>
+    <table><thead><tr><th>ID</th><th>লেবেল</th><th>Order</th><th></th></tr></thead><tbody id="batchTable"></tbody></table>
+    <h3 style="font-size:14px; margin-top:20px;">নতুন ব্যাচ</h3>
+    <div class="row">
+      <div><label>ID (ইংরেজি, স্পেস ছাড়া)</label><input type="text" id="bNewId" placeholder="hsc29"></div>
+      <div><label>লেবেল</label><input type="text" id="bNewLabel" placeholder="HSC-29"></div>
+      <div><label>Sort order</label><input type="number" id="bNewSort" value="0"></div>
+    </div>
+    <button class="btn-primary" id="bAddBtn">যোগ করো</button>
+  </section>
+
+  <!-- COURSES -->
+  <section data-panel="courses" class="card hidden">
+    <h2>কোর্স তালিকা</h2>
+    <div id="courseList"></div>
+    <h3 style="font-size:14px; margin-top:20px;">নতুন কোর্স</h3>
+    <div class="row">
+      <div><label>কোর্সের নাম</label><input type="text" id="cNewName"></div>
+      <div><label>ব্যাচ</label><select id="cNewBatch"></select></div>
+    </div>
+    <div class="row">
+      <div><label>ধরন</label><select id="cNewType"><option>রেকর্ডেড</option><option>হাইব্রিড</option><option>লাইভ</option></select></div>
+      <div><label>ঘন্টা</label><input type="number" id="cNewHours" value="0"></div>
+      <div><label>ভিডিও</label><input type="number" id="cNewVideos" value="0"></div>
+    </div>
+    <div class="row">
+      <div><label>দাম (এখন)</label><input type="number" id="cNewNow" value="0"></div>
+      <div><label>দাম (আগে)</label><input type="number" id="cNewOld" value="0"></div>
+    </div>
+    <label>সিলেবাস (প্রতি লাইনে একটা চ্যাপ্টার)</label>
+    <textarea id="cNewSyllabus" placeholder="মৌলিক ধারণা ও পরিচিতি&#10;গঠন ও বন্ধন"></textarea>
+    <button class="btn-primary" id="cAddBtn">যোগ করো</button>
+  </section>
+
+  <!-- ROUTINE -->
+  <section data-panel="routine" class="card hidden">
+    <h2>ক্লাস রুটিন</h2>
+    <table><thead><tr><th>বার</th><th>সময়</th><th>বিষয়</th><th>ব্যাচ</th><th></th></tr></thead><tbody id="routineTable"></tbody></table>
+    <h3 style="font-size:14px; margin-top:20px;">নতুন রুটিন এন্ট্রি</h3>
+    <div class="row">
+      <div><label>বার</label><input type="text" id="rNewDay" placeholder="শনিবার"></div>
+      <div><label>সময়</label><input type="text" id="rNewTime" placeholder="রাত ৮:০০ - ৯:৩০"></div>
+    </div>
+    <div class="row">
+      <div><label>বিষয়</label><input type="text" id="rNewSubject"></div>
+      <div><label>ব্যাচ লেবেল</label><input type="text" id="rNewBatch" placeholder="HSC-27"></div>
+    </div>
+    <button class="btn-primary" id="rAddBtn">যোগ করো</button>
+  </section>
+
+  <!-- RESOURCES -->
+  <section data-panel="resources" class="card hidden">
+    <h2>রিসোর্স (PDF / ভিডিও / ইনফোগ্রাফিক)</h2>
+    <table><thead><tr><th>বিষয়</th><th>চ্যাপ্টার</th><th>টাইটেল</th><th>ধরন</th><th></th></tr></thead><tbody id="resourceTable"></tbody></table>
+    <h3 style="font-size:14px; margin-top:20px;">নতুন রিসোর্স যোগ করো</h3>
+    <div class="row">
+      <div>
+        <label>বিষয়</label>
+        <select id="resNewSubject">
+          <option value="chemistry">রসায়ন (Chemistry)</option>
+          <option value="physics">পদার্থবিজ্ঞান (Physics)</option>
+          <option value="biology">জীববিজ্ঞান (Biology)</option>
+          <option value="math">গণিত (Math)</option>
+          <option value="english">ইংরেজি (English)</option>
+          <option value="gk">সাধারণ জ্ঞান (GK)</option>
+        </select>
+      </div>
+      <div><label>চ্যাপ্টার</label><input type="text" id="resNewChapter" placeholder="অধ্যায় ১: মৌলিক ধারণা"></div>
+    </div>
+    <div class="row">
+      <div><label>টাইটেল</label><input type="text" id="resNewTitle" placeholder="দাগানো বই পিডিএফ"></div>
+      <div>
+        <label>ধরন</label>
+        <select id="resNewType"><option value="pdf">PDF</option><option value="video">ভিডিও (YouTube)</option><option value="infographic">ইনফোগ্রাফিক</option></select>
+      </div>
+    </div>
+    <label>লিংক (Google Drive PDF লিংক অথবা YouTube লিংক)</label>
+    <input type="url" id="resNewUrl" placeholder="https://drive.google.com/... বা https://youtube.com/...">
+    <button class="btn-primary" id="resAddBtn">যোগ করো</button>
+  </section>
+</div>
+
+<script>
+(function(){
+  var SUPA_URL = 'https://ciojnacincwcqlnwjkvo.supabase.co';
+  var SUPA_KEY = 'sb_publishable_H3b9Zot7RxL4ggHE9Dy8pQ_LNUp9Epc';
+  var sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+  var loginBox = document.getElementById('loginBox');
+  var app = document.getElementById('app');
+  var logoutBtn = document.getElementById('logoutBtn');
+  var whoami = document.getElementById('whoami');
+  var statusEl = document.getElementById('status');
+
+  var batchesCache = [];
+
+  function setStatus(msg, isErr){
+    statusEl.textContent = msg || '';
+    statusEl.style.color = isErr ? '#C1502E' : '';
+    if(msg) setTimeout(function(){ if(statusEl.textContent===msg) statusEl.textContent=''; }, 3000);
+  }
+
+  function escapeHtml(s){ return String(s==null?'':s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+  /* -------- AUTH -------- */
+  async function refreshAuthUI(){
+    var { data } = await sb.auth.getSession();
+    if(data && data.session){
+      loginBox.classList.add('hidden');
+      app.classList.remove('hidden');
+      logoutBtn.classList.remove('hidden');
+      whoami.textContent = data.session.user.email;
+      loadEverything();
+    } else {
+      loginBox.classList.remove('hidden');
+      app.classList.add('hidden');
+      logoutBtn.classList.add('hidden');
+      whoami.textContent = '';
+    }
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', async function(){
+    var email = document.getElementById('loginEmail').value.trim();
+    var password = document.getElementById('loginPassword').value;
+    document.getElementById('loginError').textContent = '';
+    var { error } = await sb.auth.signInWithPassword({ email: email, password: password });
+    if(error){ document.getElementById('loginError').textContent = 'লগইন ব্যর্থ: ' + error.message; return; }
+    refreshAuthUI();
+  });
+
+  logoutBtn.addEventListener('click', async function(){
+    await sb.auth.signOut();
+    refreshAuthUI();
+  });
+
+  /* -------- TABS -------- */
+  document.querySelectorAll('.tabbar button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.tabbar button').forEach(function(b){ b.setAttribute('aria-current','false'); });
+      btn.setAttribute('aria-current','true');
+      document.querySelectorAll('[data-panel]').forEach(function(p){ p.classList.add('hidden'); });
+      document.querySelector('[data-panel="'+btn.dataset.tab+'"]').classList.remove('hidden');
+    });
+  });
+
+  function loadEverything(){
+    loadSiteInfo();
+    loadBatches();
+    loadCourses();
+    loadRoutine();
+    loadResources();
+  }
+
+  /* -------- SITE INFO -------- */
+  async function loadSiteInfo(){
+    var { data, error } = await sb.from('site_info').select('*').eq('id',1).maybeSingle();
+    if(error || !data) return;
+    document.getElementById('siHero').value = data.hero_batch_line || '';
+    document.getElementById('siName').value = data.instructor_name || '';
+    document.getElementById('siBio').value = data.instructor_bio || '';
+    document.getElementById('siBkash').value = data.phone_bkash || '';
+    document.getElementById('siNagad').value = data.phone_nagad || '';
+  }
+  document.getElementById('siSaveBtn').addEventListener('click', async function(){
+    var payload = {
+      id: 1,
+      hero_batch_line: document.getElementById('siHero').value,
+      instructor_name: document.getElementById('siName').value,
+      instructor_bio: document.getElementById('siBio').value,
+      phone_bkash: document.getElementById('siBkash').value,
+      phone_nagad: document.getElementById('siNagad').value,
+      updated_at: new Date().toISOString()
+    };
+    var { error } = await sb.from('site_info').upsert(payload);
+    setStatus(error ? ('সেভ ব্যর্থ: '+error.message) : 'সাইট তথ্য সেভ হয়েছে ✓', !!error);
+  });
+
+  /* -------- BATCHES -------- */
+  async function loadBatches(){
+    var { data, error } = await sb.from('batches').select('*').order('sort_order');
+    if(error) return;
+    batchesCache = data || [];
+    document.getElementById('batchTable').innerHTML = batchesCache.map(function(b){
+      return '<tr><td>'+escapeHtml(b.id)+'</td><td>'+escapeHtml(b.label)+'</td><td>'+(b.sort_order||0)+'</td>'+
+        '<td class="item-actions"><button class="btn-danger" data-del-batch="'+escapeHtml(b.id)+'">মুছো</button></td></tr>';
+    }).join('');
+    var sel = document.getElementById('cNewBatch');
+    sel.innerHTML = batchesCache.map(function(b){ return '<option value="'+escapeHtml(b.id)+'">'+escapeHtml(b.label)+'</option>'; }).join('');
+    document.querySelectorAll('[data-del-batch]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        if(!confirm('এই ব্যাচ মুছে ফেলবে?')) return;
+        var { error } = await sb.from('batches').delete().eq('id', btn.dataset.delBatch);
+        setStatus(error ? error.message : 'মুছে ফেলা হয়েছে', !!error);
+        loadBatches();
+      });
+    });
+  }
+  document.getElementById('bAddBtn').addEventListener('click', async function(){
+    var id = document.getElementById('bNewId').value.trim();
+    var label = document.getElementById('bNewLabel').value.trim();
+    var sort = Number(document.getElementById('bNewSort').value) || 0;
+    if(!id || !label){ alert('ID ও লেবেল দাও।'); return; }
+    var { error } = await sb.from('batches').insert({ id: id, label: label, sort_order: sort });
+    setStatus(error ? error.message : 'ব্যাচ যোগ হয়েছে ✓', !!error);
+    if(!error){ document.getElementById('bNewId').value=''; document.getElementById('bNewLabel').value=''; loadBatches(); }
+  });
+
+  /* -------- COURSES -------- */
+  async function loadCourses(){
+    var { data, error } = await sb.from('courses').select('*').order('sort_order');
+    if(error) return;
+    var box = document.getElementById('courseList');
+    box.innerHTML = (data||[]).map(function(c){
+      var batchLabel = (batchesCache.find(function(b){return b.id===c.batch_id;}) || {}).label || c.batch_id;
+      return '<div class="card" style="background:var(--surface-2);">'+
+        '<div class="row" style="align-items:center;">'+
+          '<b>'+escapeHtml(c.name)+'</b>'+
+          '<span class="tag">'+escapeHtml(batchLabel)+'</span><span class="tag">'+escapeHtml(c.course_type||'')+'</span>'+
+        '</div>'+
+        '<p style="font-size:13px; color:var(--ink-soft); margin:6px 0;">⏱ '+ (c.hours||0) +' ঘন্টা · ▶ '+(c.videos||0)+' ভিডিও · ৳'+(c.price_now||0)+' (আগে ৳'+(c.price_old||0)+')</p>'+
+        '<div class="item-actions"><button class="btn-danger" data-del-course="'+c.id+'">মুছো</button></div>'+
+      '</div>';
+    }).join('') || '<p style="color:var(--ink-soft); font-size:13px;">এখনো কোনো কোর্স যোগ করা হয়নি।</p>';
+    document.querySelectorAll('[data-del-course]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        if(!confirm('এই কোর্স মুছে ফেলবে?')) return;
+        var { error } = await sb.from('courses').delete().eq('id', btn.dataset.delCourse);
+        setStatus(error ? error.message : 'মুছে ফেলা হয়েছে', !!error);
+        loadCourses();
+      });
+    });
+  }
+  document.getElementById('cAddBtn').addEventListener('click', async function(){
+    var name = document.getElementById('cNewName').value.trim();
+    if(!name){ alert('কোর্সের নাম দাও।'); return; }
+    var syllabus = document.getElementById('cNewSyllabus').value.split('\n').map(function(s){return s.trim();}).filter(Boolean);
+    var payload = {
+      name: name,
+      batch_id: document.getElementById('cNewBatch').value,
+      course_type: document.getElementById('cNewType').value,
+      hours: Number(document.getElementById('cNewHours').value)||0,
+      videos: Number(document.getElementById('cNewVideos').value)||0,
+      price_now: Number(document.getElementById('cNewNow').value)||0,
+      price_old: Number(document.getElementById('cNewOld').value)||0,
+      syllabus: syllabus
+    };
+    var { error } = await sb.from('courses').insert(payload);
+    setStatus(error ? error.message : 'কোর্স যোগ হয়েছে ✓', !!error);
+    if(!error){
+      document.getElementById('cNewName').value=''; document.getElementById('cNewSyllabus').value='';
+      loadCourses();
+    }
+  });
+
+  /* -------- ROUTINE -------- */
+  async function loadRoutine(){
+    var { data, error } = await sb.from('routine').select('*').order('sort_order');
+    if(error) return;
+    document.getElementById('routineTable').innerHTML = (data||[]).map(function(r){
+      return '<tr><td>'+escapeHtml(r.day_name)+'</td><td>'+escapeHtml(r.time_range)+'</td><td>'+escapeHtml(r.subject)+'</td><td>'+escapeHtml(r.batch_label)+'</td>'+
+        '<td class="item-actions"><button class="btn-danger" data-del-routine="'+r.id+'">মুছো</button></td></tr>';
+    }).join('');
+    document.querySelectorAll('[data-del-routine]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        if(!confirm('এই এন্ট্রি মুছে ফেলবে?')) return;
+        var { error } = await sb.from('routine').delete().eq('id', btn.dataset.delRoutine);
+        setStatus(error ? error.message : 'মুছে ফেলা হয়েছে', !!error);
+        loadRoutine();
+      });
+    });
+  }
+  document.getElementById('rAddBtn').addEventListener('click', async function(){
+    var day = document.getElementById('rNewDay').value.trim();
+    var time = document.getElementById('rNewTime').value.trim();
+    if(!day || !time){ alert('বার ও সময় দাও।'); return; }
+    var payload = {
+      day_name: day, time_range: time,
+      subject: document.getElementById('rNewSubject').value.trim(),
+      batch_label: document.getElementById('rNewBatch').value.trim()
+    };
+    var { error } = await sb.from('routine').insert(payload);
+    setStatus(error ? error.message : 'রুটিন যোগ হয়েছে ✓', !!error);
+    if(!error){
+      document.getElementById('rNewDay').value=''; document.getElementById('rNewTime').value='';
+      document.getElementById('rNewSubject').value=''; document.getElementById('rNewBatch').value='';
+      loadRoutine();
+    }
+  });
+
+  /* -------- RESOURCES -------- */
+  async function loadResources(){
+    var { data, error } = await sb.from('resources').select('*').order('sort_order');
+    if(error) return;
+    document.getElementById('resourceTable').innerHTML = (data||[]).map(function(r){
+      return '<tr><td>'+escapeHtml(r.subject)+'</td><td>'+escapeHtml(r.chapter)+'</td><td>'+escapeHtml(r.title)+'</td><td>'+escapeHtml(r.resource_type)+'</td>'+
+        '<td class="item-actions"><a href="'+escapeHtml(r.url)+'" target="_blank" rel="noopener" style="font-size:12px;">লিংক</a> <button class="btn-danger" data-del-resource="'+r.id+'">মুছো</button></td></tr>';
+    }).join('');
+    document.querySelectorAll('[data-del-resource]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        if(!confirm('এই রিসোর্স মুছে ফেলবে?')) return;
+        var { error } = await sb.from('resources').delete().eq('id', btn.dataset.delResource);
+        setStatus(error ? error.message : 'মুছে ফেলা হয়েছে', !!error);
+        loadResources();
+      });
+    });
+  }
+  document.getElementById('resAddBtn').addEventListener('click', async function(){
+    var title = document.getElementById('resNewTitle').value.trim();
+    var url = document.getElementById('resNewUrl').value.trim();
+    if(!title || !url){ alert('টাইটেল ও লিংক দাও।'); return; }
+    var payload = {
+      subject: document.getElementById('resNewSubject').value,
+      chapter: document.getElementById('resNewChapter').value.trim(),
+      title: title,
+      resource_type: document.getElementById('resNewType').value,
+      url: url
+    };
+    var { error } = await sb.from('resources').insert(payload);
+    setStatus(error ? error.message : 'রিসোর্স যোগ হয়েছে ✓', !!error);
+    if(!error){
+      document.getElementById('resNewTitle').value=''; document.getElementById('resNewUrl').value=''; document.getElementById('resNewChapter').value='';
+      loadResources();
+    }
+  });
+
+  refreshAuthUI();
+})();
+</script>
+</body>
+</html>
