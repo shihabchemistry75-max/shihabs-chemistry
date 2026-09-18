@@ -403,6 +403,11 @@
     </div>
   </section>
 
+  <!-- AD SLIDES (admin-managed image banner, scrollable) -->
+  <section id="adSlides" class="wrap" style="padding-top:0;display:none;">
+    <div id="adSlideTrack" style="display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 12px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;"></div>
+  </section>
+
   <!-- WHY US -->
   <section id="why">
     <div class="wrap">
@@ -738,6 +743,30 @@
     }catch(e){}
   }
 
+  var adAutoTimer = null;
+  function renderAdSlides(rows){
+    var sec = document.getElementById('adSlides');
+    var track = document.getElementById('adSlideTrack');
+    if(!sec || !track) return;
+    if(!rows || !rows.length){ sec.style.display = 'none'; return; }
+    track.innerHTML = rows.map(function(r){
+      var img = '<img src="'+escapeHtml(r.image_url)+'" alt="বিজ্ঞাপন" style="width:min(340px,82vw);height:170px;object-fit:cover;border-radius:16px;flex:0 0 auto;scroll-snap-align:start;display:block;box-shadow:var(--shadow);">';
+      return r.link_url ? '<a href="'+escapeHtml(r.link_url)+'" target="_blank" rel="noopener" style="flex:0 0 auto;">'+img+'</a>' : img;
+    }).join('');
+    sec.style.display = '';
+    clearInterval(adAutoTimer);
+    if(rows.length > 1){
+      adAutoTimer = setInterval(function(){
+        var maxScroll = track.scrollWidth - track.clientWidth;
+        if(track.scrollLeft >= maxScroll - 5){ track.scrollTo({left:0, behavior:'smooth'}); }
+        else{ track.scrollBy({left: track.clientWidth * 0.85, behavior:'smooth'}); }
+      }, 4000);
+      ['touchstart','mousedown','wheel'].forEach(function(ev){
+        track.addEventListener(ev, function(){ clearInterval(adAutoTimer); }, {once:true, passive:true});
+      });
+    }
+  }
+
   async function loadRemoteData(){
     if(!sb) return;
     try{
@@ -746,9 +775,11 @@
         sb.from('batches').select('*').order('sort_order'),
         sb.from('courses').select('*').order('sort_order'),
         sb.from('routine').select('*').order('sort_order'),
-        sb.from('resources').select('*').order('sort_order')
+        sb.from('resources').select('*').order('sort_order'),
+        sb.from('ad_slides').select('*').order('sort_order')
       ]);
-      var siteInfoRes = results[0], batchesRes = results[1], coursesRes = results[2], routineRes = results[3], resourcesRes = results[4];
+      var siteInfoRes = results[0], batchesRes = results[1], coursesRes = results[2], routineRes = results[3], resourcesRes = results[4], adSlidesRes = results[5];
+      if(adSlidesRes && !adSlidesRes.error) renderAdSlides(adSlidesRes.data);
       if(siteInfoRes && siteInfoRes.data){
         siteInfo = siteInfoRes.data;
         if(siteInfo.hero_batch_line) state.heroBatchLine = siteInfo.hero_batch_line;
