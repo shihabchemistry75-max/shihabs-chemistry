@@ -204,17 +204,18 @@
   <!-- AD SLIDES -->
   <section data-panel="ads" class="card hidden">
     <h2>বিজ্ঞাপন স্লাইড (হোমপেজে ছবি স্লাইড)</h2>
-    <p style="font-size:12.5px; color:var(--ink-soft); margin-top:-8px;">ছবির সরাসরি লিংক (direct image URL) দাও — imgbb.com বা postimages.org-এ ছবি আপলোড করে ওখান থেকে "Direct link" কপি করতে পারো। Order যত কম, স্লাইড তত আগে দেখাবে। স্টুডেন্টরা চাইলে স্লাইডগুলো নিজেরাও স্ক্রল/সোয়াইপ করে দেখতে পারবে।</p>
+    <p style="font-size:12.5px; color:var(--ink-soft); margin-top:-8px;">গ্যালারি থেকে সরাসরি ছবি আপলোড করো। Order যত কম, স্লাইড তত আগে দেখাবে। স্টুডেন্টরা চাইলে স্লাইডগুলো নিজেরাও স্ক্রল/সোয়াইপ করে দেখতে পারবে।</p>
     <table><thead><tr><th>ছবি</th><th>ক্লিক লিংক</th><th>Order</th><th></th></tr></thead><tbody id="adSlideTable"></tbody></table>
     <h3 style="font-size:14px; margin-top:20px;">নতুন স্লাইড যোগ করো</h3>
     <div class="row">
-      <div><label>ছবির লিংক (Image URL)</label><input type="url" id="adNewImage" placeholder="https://i.ibb.co/xxxx/banner.jpg"></div>
+      <div><label>গ্যালারি থেকে ছবি বেছে নাও</label><input type="file" id="adNewImage" accept="image/*"></div>
       <div><label>ক্লিক করলে যে লিংকে যাবে (ঐচ্ছিক)</label><input type="url" id="adNewLink" placeholder="https://..."></div>
     </div>
     <div class="row">
       <div><label>Sort order</label><input type="number" id="adNewSort" value="0"></div>
     </div>
-    <button class="btn-primary" id="adAddBtn">যোগ করো</button>
+    <img id="adPreview" style="display:none; max-width:220px; max-height:130px; object-fit:cover; border-radius:8px; margin-bottom:12px;">
+    <button class="btn-primary" id="adAddBtn">আপলোড করো</button>
   </section>
 </div>
 
@@ -400,21 +401,46 @@
     document.querySelectorAll('[data-del-ad]').forEach(function(btn){
       btn.addEventListener('click', async function(){
         if(!confirm('এই স্লাইড মুছে ফেলবে?')) return;
+        var row = (data||[]).find(function(r){ return String(r.id)===String(btn.dataset.delAd); });
         var { error } = await sb.from('ad_slides').delete().eq('id', btn.dataset.delAd);
+        if(!error && row && row.image_url){
+          try{
+            var path = row.image_url.split('/ad-slides/')[1];
+            if(path) await sb.storage.from('ad-slides').remove([decodeURIComponent(path)]);
+          }catch(e){}
+        }
         setStatus(error ? error.message : 'মুছে ফেলা হয়েছে', !!error);
         loadAdSlides();
       });
     });
   }
+  document.getElementById('adNewImage').addEventListener('change', function(){
+    var file = this.files[0];
+    var preview = document.getElementById('adPreview');
+    if(!file){ preview.style.display = 'none'; return; }
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = 'block';
+  });
   document.getElementById('adAddBtn').addEventListener('click', async function(){
-    var img = document.getElementById('adNewImage').value.trim();
+    var fileInput = document.getElementById('adNewImage');
+    var file = fileInput.files[0];
     var link = document.getElementById('adNewLink').value.trim();
     var sort = Number(document.getElementById('adNewSort').value) || 0;
-    if(!img){ alert('ছবির লিংক দাও।'); return; }
-    var { error } = await sb.from('ad_slides').insert({ image_url: img, link_url: link || null, sort_order: sort });
+    if(!file){ alert('গ্যালারি থেকে একটা ছবি বেছে নাও।'); return; }
+    var btn = this;
+    btn.disabled = true;
+    setStatus('আপলোড হচ্ছে...', false);
+    var ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g,'') || 'jpg';
+    var fileName = 'slide_' + Date.now() + '_' + Math.random().toString(36).slice(2,8) + '.' + ext;
+    var { error: upErr } = await sb.storage.from('ad-slides').upload(fileName, file, { cacheControl: '3600', upsert: false });
+    if(upErr){ btn.disabled = false; setStatus('আপলোড ব্যর্থ: '+upErr.message, true); return; }
+    var { data: urlData } = sb.storage.from('ad-slides').getPublicUrl(fileName);
+    var { error } = await sb.from('ad_slides').insert({ image_url: urlData.publicUrl, link_url: link || null, sort_order: sort });
+    btn.disabled = false;
     setStatus(error ? error.message : 'স্লাইড যোগ হয়েছে ✓', !!error);
     if(!error){
-      document.getElementById('adNewImage').value='';
+      fileInput.value = '';
+      document.getElementById('adPreview').style.display = 'none';
       document.getElementById('adNewLink').value='';
       document.getElementById('adNewSort').value='0';
       loadAdSlides();
