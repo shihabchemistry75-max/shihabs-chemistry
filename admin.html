@@ -82,7 +82,6 @@
   <button class="btn-primary" id="setPasswordBtn" style="width:100%;">পাসওয়ার্ড সেভ করো</button>
   <p id="setPasswordError" style="color:var(--accent-2); font-size:13px; margin-top:10px;"></p>
 </div>
-
 <div id="app" class="wrap hidden">
   <p id="status"></p>
 
@@ -92,6 +91,7 @@
     <button data-tab="courses">কোর্স</button>
     <button data-tab="routine">রুটিন</button>
     <button data-tab="resources">রিসোর্স</button>
+    <button data-tab="ads">বিজ্ঞাপন স্লাইড</button>
   </div>
 
   <!-- SITE INFO -->
@@ -168,7 +168,6 @@
     </div>
     <button class="btn-primary" id="rAddBtn">যোগ করো</button>
   </section>
-
   <!-- RESOURCES -->
   <section data-panel="resources" class="card hidden">
     <h2>রিসোর্স (চ্যাপ্টার → টপিক → লিংক)</h2>
@@ -200,6 +199,22 @@
       <div><label>🎞️ অ্যানিমেশন লিংক (YouTube)</label><input type="url" id="resNewAnimation" placeholder="https://youtube.com/..."></div>
     </div>
     <button class="btn-primary" id="resAddBtn">টপিক যোগ করো</button>
+  </section>
+
+  <!-- AD SLIDES -->
+  <section data-panel="ads" class="card hidden">
+    <h2>বিজ্ঞাপন স্লাইড (হোমপেজে ছবি স্লাইড)</h2>
+    <p style="font-size:12.5px; color:var(--ink-soft); margin-top:-8px;">ছবির সরাসরি লিংক (direct image URL) দাও — imgbb.com বা postimages.org-এ ছবি আপলোড করে ওখান থেকে "Direct link" কপি করতে পারো। Order যত কম, স্লাইড তত আগে দেখাবে। স্টুডেন্টরা চাইলে স্লাইডগুলো নিজেরাও স্ক্রল/সোয়াইপ করে দেখতে পারবে।</p>
+    <table><thead><tr><th>ছবি</th><th>ক্লিক লিংক</th><th>Order</th><th></th></tr></thead><tbody id="adSlideTable"></tbody></table>
+    <h3 style="font-size:14px; margin-top:20px;">নতুন স্লাইড যোগ করো</h3>
+    <div class="row">
+      <div><label>ছবির লিংক (Image URL)</label><input type="url" id="adNewImage" placeholder="https://i.ibb.co/xxxx/banner.jpg"></div>
+      <div><label>ক্লিক করলে যে লিংকে যাবে (ঐচ্ছিক)</label><input type="url" id="adNewLink" placeholder="https://..."></div>
+    </div>
+    <div class="row">
+      <div><label>Sort order</label><input type="number" id="adNewSort" value="0"></div>
+    </div>
+    <button class="btn-primary" id="adAddBtn">যোগ করো</button>
   </section>
 </div>
 
@@ -309,6 +324,7 @@
     loadCourses();
     loadRoutine();
     loadResources();
+    loadAdSlides();
   }
 
   /* -------- SITE INFO -------- */
@@ -369,6 +385,40 @@
     var { error } = await sb.from('batches').insert({ id: id, label: label, sort_order: sort });
     setStatus(error ? error.message : 'ব্যাচ যোগ হয়েছে ✓', !!error);
     if(!error){ document.getElementById('bNewId').value=''; document.getElementById('bNewLabel').value=''; loadBatches(); }
+  });
+
+  /* -------- AD SLIDES -------- */
+  async function loadAdSlides(){
+    var { data, error } = await sb.from('ad_slides').select('*').order('sort_order');
+    if(error) return;
+    document.getElementById('adSlideTable').innerHTML = (data||[]).map(function(s){
+      return '<tr><td><img src="'+escapeHtml(s.image_url)+'" style="width:70px;height:42px;object-fit:cover;border-radius:6px;" onerror="this.style.opacity=0.2"></td>'+
+        '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;">'+(s.link_url?escapeHtml(s.link_url):'<span style="color:var(--ink-soft);">—</span>')+'</td>'+
+        '<td>'+(s.sort_order||0)+'</td>'+
+        '<td class="item-actions"><button class="btn-danger" data-del-ad="'+s.id+'">মুছো</button></td></tr>';
+    }).join('');
+    document.querySelectorAll('[data-del-ad]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        if(!confirm('এই স্লাইড মুছে ফেলবে?')) return;
+        var { error } = await sb.from('ad_slides').delete().eq('id', btn.dataset.delAd);
+        setStatus(error ? error.message : 'মুছে ফেলা হয়েছে', !!error);
+        loadAdSlides();
+      });
+    });
+  }
+  document.getElementById('adAddBtn').addEventListener('click', async function(){
+    var img = document.getElementById('adNewImage').value.trim();
+    var link = document.getElementById('adNewLink').value.trim();
+    var sort = Number(document.getElementById('adNewSort').value) || 0;
+    if(!img){ alert('ছবির লিংক দাও।'); return; }
+    var { error } = await sb.from('ad_slides').insert({ image_url: img, link_url: link || null, sort_order: sort });
+    setStatus(error ? error.message : 'স্লাইড যোগ হয়েছে ✓', !!error);
+    if(!error){
+      document.getElementById('adNewImage').value='';
+      document.getElementById('adNewLink').value='';
+      document.getElementById('adNewSort').value='0';
+      loadAdSlides();
+    }
   });
 
   /* -------- COURSES -------- */
@@ -461,7 +511,6 @@
     var { data, error } = await sb.from('resources').select('*').order('sort_order');
     if(error) return;
     var rows = data || [];
-    // group: subject -> chapter -> topic -> [rows]
     var tree = {};
     rows.forEach(function(r){
       var subj = r.subject || '—';
