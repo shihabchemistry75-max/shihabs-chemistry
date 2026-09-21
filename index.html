@@ -722,6 +722,18 @@
   </div>
 </div>
 
+<!-- APP & WEB DEV BY SHIHAB SIR -->
+<section id="devApps">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker bn">শিহাব স্যারের তৈরি</span>
+      <h2 class="bn">App &amp; Web Development by Shihab Sir</h2>
+    </div>
+    <div class="grid-3" id="devAppsGrid" style="margin-bottom:8px;"></div>
+    <p class="bn" id="devAppsEmpty" style="display:none; color:var(--ink-soft); font-size:13.5px; text-align:center; padding:20px 0;">শীঘ্রই নতুন অ্যাপ ও ওয়েবসাইট যোগ করা হবে...</p>
+  </div>
+</section>
+
 <footer class="site">
   <div class="wrap">
     <div class="foot-grid">
@@ -841,6 +853,23 @@
     }
   }
 
+  function renderDevApps(rows){
+    var grid = document.getElementById('devAppsGrid');
+    var empty = document.getElementById('devAppsEmpty');
+    if(!grid) return;
+    rows = rows || [];
+    if(!rows.length){ grid.innerHTML = ''; if(empty) empty.style.display = 'block'; return; }
+    if(empty) empty.style.display = 'none';
+    grid.innerHTML = rows.map(function(a){
+      return '<div class="card">'+
+        '<div class="ic" style="font-size:28px;">'+escapeHtml(a.icon||'\ud83d\udd17')+'</div>'+
+        '<h3 class="bn">'+escapeHtml(a.title)+'</h3>'+
+        (a.description ? '<p class="bn">'+escapeHtml(a.description)+'</p>' : '')+
+        '<a href="'+escapeHtml(a.url)+'" target="_blank" rel="noopener" class="btn btn-primary bn" style="margin-top:12px; display:inline-block;">\u09ad\u09bf\u099c\u09bf\u099f \u0995\u09b0\u09cb \u2192</a>'+
+        '</div>';
+    }).join('');
+  }
+
   async function loadRemoteData(){
     if(!sb) return;
     try{
@@ -850,10 +879,12 @@
         sb.from('courses').select('*').order('sort_order'),
         sb.from('routine').select('*').order('sort_order'),
         sb.from('resources').select('*').order('sort_order'),
-        sb.from('ad_slides').select('*').order('sort_order')
+        sb.from('ad_slides').select('*').order('sort_order'),
+        sb.from('dev_apps').select('*').order('sort_order')
       ]);
-      var siteInfoRes = results[0], batchesRes = results[1], coursesRes = results[2], routineRes = results[3], resourcesRes = results[4], adSlidesRes = results[5];
+      var siteInfoRes = results[0], batchesRes = results[1], coursesRes = results[2], routineRes = results[3], resourcesRes = results[4], adSlidesRes = results[5], devAppsRes = results[6];
       if(adSlidesRes && !adSlidesRes.error) renderAdSlides(adSlidesRes.data);
+      if(devAppsRes && !devAppsRes.error) renderDevApps(devAppsRes.data);
       if(siteInfoRes && siteInfoRes.data){
         siteInfo = siteInfoRes.data;
         if(siteInfo.hero_batch_line) state.heroBatchLine = siteInfo.hero_batch_line;
