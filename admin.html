@@ -93,6 +93,7 @@
     <button data-tab="resources">রিসোর্স</button>
     <button data-tab="ads">বিজ্ঞাপন স্লাইড</button>
     <button data-tab="bookstore">📚 বই স্টোর</button>
+    <button data-tab="devapps">🛠️ আমার অ্যাপ</button>
   </div>
 
   <!-- SITE INFO -->
@@ -336,6 +337,25 @@
     <h3 style="font-size:14px; margin-top:24px;">ডেলিভারি চার্জ</h3>
     <table><thead><tr><th>জোন</th><th>চার্জ (৳)</th><th></th></tr></thead><tbody id="drTable"></tbody></table>
   </section>
+
+  <!-- MY APPS -->
+  <section data-panel="devapps" class="card hidden">
+    <h2>🛠️ App &amp; Web Development by Shihab Sir</h2>
+    <p style="font-size:12.5px; color:var(--ink-soft); margin-top:-8px;">এখানে যোগ করা প্রতিটা অ্যাপ/ওয়েবসাইট সাথে সাথে হোমপেজের "App & Web Development by Shihab Sir" সেকশনে দেখা যাবে।</p>
+    <table><thead><tr><th>আইকন</th><th>নাম</th><th>লিংক</th><th>Order</th><th></th></tr></thead><tbody id="devAppTable"></tbody></table>
+    <h3 style="font-size:14px; margin-top:20px;">নতুন অ্যাপ/ওয়েবসাইট যোগ করো</h3>
+    <div class="row">
+      <div><label>নাম</label><input type="text" id="daNewTitle" placeholder="যেমন: MCQ Practice App"></div>
+      <div><label>আইকন (ইমোজি, ঐচ্ছিক)</label><input type="text" id="daNewIcon" placeholder="🚀" maxlength="4"></div>
+    </div>
+    <div class="row">
+      <div><label>লিংক (URL)</label><input type="url" id="daNewUrl" placeholder="https://..."></div>
+      <div><label>Sort order</label><input type="number" id="daNewSort" value="0"></div>
+    </div>
+    <label>বর্ণনা (ঐচ্ছিক)</label>
+    <textarea id="daNewDesc" placeholder="সংক্ষেপে লিখো এই অ্যাপটা কী করে"></textarea>
+    <button class="btn-primary" id="daAddBtn">যোগ করো</button>
+  </section>
 </div>
 
 <script>
@@ -446,6 +466,7 @@
     loadResources();
     loadAdSlides();
     loadBookstore();
+    loadDevApps();
   }
 
   /* -------- SITE INFO -------- */
@@ -1091,6 +1112,48 @@
       });
     });
   }
+
+  /* -------- MY APPS (App & Web Development by Shihab Sir) -------- */
+  async function loadDevApps(){
+    var { data, error } = await sb.from('dev_apps').select('*').order('sort_order');
+    if(error) return;
+    document.getElementById('devAppTable').innerHTML = (data||[]).map(function(a){
+      return '<tr><td style="font-size:18px;">'+escapeHtml(a.icon||'🔗')+'</td>'+
+        '<td>'+escapeHtml(a.title)+'</td>'+
+        '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;"><a href="'+escapeHtml(a.url)+'" target="_blank" rel="noopener">'+escapeHtml(a.url)+'</a></td>'+
+        '<td>'+(a.sort_order||0)+'</td>'+
+        '<td class="item-actions"><button class="btn-danger" data-del-devapp="'+a.id+'">মুছো</button></td></tr>';
+    }).join('');
+    document.querySelectorAll('[data-del-devapp]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        if(!confirm('এই অ্যাপ/সাইটটা মুছে ফেলবে?')) return;
+        var { error } = await sb.from('dev_apps').delete().eq('id', btn.dataset.delDevapp);
+        setStatus(error ? error.message : 'মুছে ফেলা হয়েছে', !!error);
+        loadDevApps();
+      });
+    });
+  }
+  document.getElementById('daAddBtn').addEventListener('click', async function(){
+    var title = document.getElementById('daNewTitle').value.trim();
+    var icon = document.getElementById('daNewIcon').value.trim();
+    var url = document.getElementById('daNewUrl').value.trim();
+    var desc = document.getElementById('daNewDesc').value.trim();
+    var sort = Number(document.getElementById('daNewSort').value) || 0;
+    if(!title || !url){ alert('নাম এবং লিংক আবশ্যক।'); return; }
+    var btn = this;
+    btn.disabled = true;
+    var { error } = await sb.from('dev_apps').insert({ title: title, icon: icon || null, url: url, description: desc || null, sort_order: sort });
+    btn.disabled = false;
+    setStatus(error ? error.message : 'যোগ হয়েছে ✓', !!error);
+    if(!error){
+      document.getElementById('daNewTitle').value='';
+      document.getElementById('daNewIcon').value='';
+      document.getElementById('daNewUrl').value='';
+      document.getElementById('daNewDesc').value='';
+      document.getElementById('daNewSort').value='0';
+      loadDevApps();
+    }
+  });
 
   refreshAuthUI();
 })();
