@@ -287,6 +287,9 @@
   #editPanel h3{ font-size:19px; margin-bottom:4px; }
   #editPanel .ehint{ font-size:13px; color:var(--ink-soft); margin-bottom:20px; }
   #editPanel .efield{ margin-bottom:20px; }
+  .efield{ margin-bottom:16px; }
+  .efield label{ display:block; font-size:13px; color:var(--ink-soft); margin-bottom:6px; }
+  .efield input, .efield select{ width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:10px; font-family:inherit; font-size:14px; background:var(--surface); color:var(--ink); }
   #editPanel label{ display:block; font-size:12.5px; font-weight:700; color:var(--ink-soft); margin-bottom:6px; text-transform:uppercase; letter-spacing:.4px; }
   #editPanel input[type="text"], #editPanel input[type="number"], #editPanel select{
     width:100%; border:1px solid var(--line); border-radius:10px; padding:9px 12px;
@@ -338,6 +341,7 @@
       <a href="#" class="nav-link" data-target="classroom">Classroom</a>
       <a href="#" class="nav-link" data-target="routine">Routine</a>
       <a href="#" class="nav-link" data-target="resources">Resource Library</a>
+      <a href="#" class="nav-link" data-target="bookstore">📚 বই স্টোর</a>
       <a href="#" class="nav-link" data-target="home#free">Free Resources</a>
       <a href="#" class="nav-link" data-target="home#about">About Us</a>
     </nav>
@@ -354,6 +358,7 @@
     <a href="#" class="bn nav-link" data-target="classroom">Classroom</a>
     <a href="#" class="bn nav-link" data-target="routine">Routine</a>
     <a href="#" class="bn nav-link" data-target="resources">Resource Library</a>
+    <a href="#" class="bn nav-link" data-target="bookstore">📚 বই স্টোর</a>
     <a href="#" class="bn nav-link" data-target="home#free">Free Resources</a>
     <a href="#" class="bn nav-link" data-target="home#about">About Us</a>
   </div>
@@ -630,6 +635,56 @@
 </main>
 
 
+<!-- ================= BOOK STORE (রসায়ন পিডিয়া) LIST VIEW ================= -->
+<main class="view" data-view="bookstore" hidden>
+  <div class="wrap" style="padding-block:48px;">
+    <div class="section-head">
+      <span class="kicker bn">রসায়ন পিডিয়া</span>
+      <h2 class="bn">টপিক-ভিত্তিক বই — অর্ডার করো, বাসায় পৌঁছে যাবে</h2>
+      <p class="bn" style="margin-top:10px;">প্রতিটা বইয়ের কিছু পাতা প্রিভিউ হিসেবে দেখতে পারবে, অর্ডার করার আগেই।</p>
+    </div>
+    <div class="tabs" id="bsSubjectTabs" role="tablist" style="margin-bottom:24px;"></div>
+    <div id="bsBookList" style="display:flex; flex-direction:column; gap:28px;"></div>
+    <div style="text-align:center; margin-top:32px;">
+      <a href="#" class="btn btn-ghost bn" id="goTrackOrderBtn">📦 আমার অর্ডার ট্র্যাক করো</a>
+    </div>
+  </div>
+</main>
+
+<!-- ================= BOOK DETAIL VIEW ================= -->
+<main class="view" data-view="book-detail" hidden>
+  <div class="wrap" style="padding-block:48px; max-width:820px;">
+    <button class="btn btn-ghost bn nav-link" data-target="bookstore" style="margin-bottom:24px;">← বই স্টোরে ফিরে যাও</button>
+    <div id="bookDetailBody"></div>
+  </div>
+</main>
+
+<!-- ================= BOOK CHECKOUT VIEW ================= -->
+<main class="view" data-view="book-checkout" hidden>
+  <div class="wrap" style="padding-block:48px; max-width:640px;">
+    <button class="btn btn-ghost bn" id="backToBookDetail" style="margin-bottom:24px;">← ফিরে যাও</button>
+    <div id="bookCheckoutBody"></div>
+  </div>
+</main>
+
+<!-- ================= BOOK ORDER TRACK VIEW ================= -->
+<main class="view" data-view="book-track" hidden>
+  <div class="wrap" style="padding-block:48px; max-width:520px;">
+    <div class="section-head">
+      <span class="kicker bn">অর্ডার ট্র্যাকিং</span>
+      <h2 class="bn">তোমার অর্ডারের অবস্থা দেখো</h2>
+    </div>
+    <div class="card" style="padding:26px;">
+      <div class="efield"><label class="bn">অর্ডার নম্বর</label><input type="text" id="trackOrderNumber" class="bn" placeholder="RP-2026-000123"></div>
+      <div class="efield"><label class="bn">ফোন নম্বর</label><input type="text" id="trackPhone" class="bn" placeholder="01XXXXXXXXX"></div>
+      <button class="btn btn-primary bn" id="trackSubmitBtn" style="width:100%;">দেখো</button>
+      <p id="trackError" class="bn" style="color:var(--accent-2); font-size:13px; margin-top:10px;"></p>
+    </div>
+    <div id="trackResult" style="margin-top:24px;"></div>
+  </div>
+</main>
+
+
 <!-- ================= FREE RESOURCE UNLOCK MODAL ================= -->
 <div id="freeModalOverlay" hidden style="position:fixed; inset:0; background:rgba(10,15,13,.55); z-index:90; display:flex; align-items:center; justify-content:center; padding:16px;">
   <div class="card" style="max-width:420px; width:100%; padding:30px;">
@@ -889,6 +944,7 @@
       if(page === 'classroom') renderDashboard();
       if(page === 'routine') renderRoutine();
       if(page === 'resources') renderResources();
+      if(page === 'bookstore') renderBookstore();
     });
   });
 
@@ -1145,6 +1201,322 @@
     var mb = document.getElementById('menuBtn');
     var menu = document.getElementById('mobileMenu');
     mb.addEventListener('click', function(){ menu.hidden = !menu.hidden; });
+  }catch(e){}
+
+  /* ================= BOOK STORE (রসায়ন পিডিয়া, public) ================= */
+  var bsBooksData = [];
+  var bsSubjectsData = [];
+  var bsActiveSubject = 'all';
+  var bsDeliveryRules = [];
+  var bsPaymentSettings = null;
+  var bsCheckoutBook = null;
+
+  async function loadBookstoreData(force){
+    if(bsBooksData.length && !force) return;
+    if(!sb) return;
+    try{
+      var results = await Promise.all([
+        sb.from('books').select('*, book_topics(name, book_chapters(name, book_papers(name, subject_id, book_subjects(id,name,slug))))').eq('is_enabled', true).order('sort_order'),
+        sb.from('book_delivery_rules').select('*').order('sort_order'),
+        sb.from('book_payment_settings').select('*').eq('id',1).maybeSingle()
+      ]);
+      if(results[0] && results[0].data) bsBooksData = results[0].data;
+      if(results[1] && results[1].data) bsDeliveryRules = results[1].data;
+      if(results[2] && results[2].data) bsPaymentSettings = results[2].data;
+      var subjMap = {};
+      bsBooksData.forEach(function(b){
+        var p = bsBookPath(b);
+        if(p.subj && p.subj.id) subjMap[p.subj.id] = p.subj;
+      });
+      bsSubjectsData = Object.keys(subjMap).map(function(k){ return subjMap[k]; });
+    }catch(e){}
+  }
+
+  function bsBookPath(b){
+    var t = b.book_topics||{}; var ch = t.book_chapters||{}; var paper = ch.book_papers||{}; var subj = paper.book_subjects||{};
+    return {subj:subj, paper:paper, chapter:ch, topic:t};
+  }
+
+  function renderBookstoreTabs(){
+    var wrap = document.getElementById('bsSubjectTabs');
+    var html = '<button class="tab" aria-pressed="'+(bsActiveSubject==='all')+'" data-bscat="all">সব বিষয়</button>';
+    bsSubjectsData.forEach(function(s){
+      html += '<button class="tab" aria-pressed="'+(bsActiveSubject===s.id)+'" data-bscat="'+s.id+'">'+escapeHtml(s.name)+'</button>';
+    });
+    wrap.innerHTML = html;
+  }
+
+  function renderBookstoreList(){
+    var box = document.getElementById('bsBookList');
+    var items = bsBooksData.filter(function(b){
+      if(bsActiveSubject==='all') return true;
+      var p = bsBookPath(b);
+      return p.subj && p.subj.id === bsActiveSubject;
+    });
+    if(!items.length){
+      box.innerHTML = '<p class="bn" style="color:var(--ink-soft);">শীঘ্রই বই যোগ করা হবে।</p>';
+      return;
+    }
+    var byChapter = {};
+    items.forEach(function(b){
+      var p = bsBookPath(b);
+      var key = (p.chapter && p.chapter.name) || 'অন্যান্য';
+      byChapter[key] = byChapter[key] || [];
+      byChapter[key].push(b);
+    });
+    box.innerHTML = Object.keys(byChapter).map(function(ch){
+      return '<div>'+
+        '<h3 class="bn" style="font-size:17px; margin-bottom:14px;">'+escapeHtml(ch)+'</h3>'+
+        '<div class="grid-3">'+
+        byChapter[ch].map(function(b){
+          var cover = b.cover_image_url ? '<img src="'+escapeHtml(b.cover_image_url)+'" style="width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:14px;">' : '<div style="width:100%;height:180px;background:var(--surface-2);border-radius:12px;margin-bottom:14px;display:flex;align-items:center;justify-content:center;font-size:34px;">📘</div>';
+          var stockBadge = b.stock_quantity>0 ? '' : ' <span class="badge bn" style="background:var(--accent-2);color:#fff;">স্টকে নেই</span>';
+          return '<div class="card" style="cursor:pointer;" data-book-open="'+b.id+'">'+cover+
+            '<div class="badge bn" style="margin-bottom:8px;">'+escapeHtml(b.series_name||'')+'</div>'+stockBadge+
+            '<h3 class="bn" style="font-size:16px; margin-bottom:8px;">'+escapeHtml(b.title)+'</h3>'+
+            '<div class="price-row" style="border-top:none; padding-top:0;"><span class="price-now">৳'+Number(b.price).toLocaleString('en-US')+'</span></div>'+
+            '<button type="button" class="btn btn-ghost bn" data-book-open="'+b.id+'" style="width:100%; margin-top:12px;">বিস্তারিত দেখো</button>'+
+          '</div>';
+        }).join('')+
+        '</div></div>';
+    }).join('');
+  }
+
+  function renderBookstore(){
+    loadBookstoreData().then(function(){
+      renderBookstoreTabs();
+      renderBookstoreList();
+    });
+  }
+
+  try{
+    document.getElementById('bsSubjectTabs').addEventListener('click', function(e){
+      var btn = e.target.closest('[data-bscat]');
+      if(!btn) return;
+      bsActiveSubject = btn.dataset.bscat;
+      renderBookstoreTabs();
+      renderBookstoreList();
+    });
+    document.getElementById('bsBookList').addEventListener('click', function(e){
+      var btn = e.target.closest('[data-book-open]');
+      if(!btn) return;
+      openBookDetail(btn.dataset.bookOpen);
+    });
+    document.getElementById('goTrackOrderBtn').addEventListener('click', function(e){
+      e.preventDefault();
+      showView('book-track');
+    });
+  }catch(e){}
+
+  function openBookDetail(bookId){
+    var b = bsBooksData.find(function(x){ return String(x.id)===String(bookId); });
+    if(!b) return;
+    var p = bsBookPath(b);
+    var pathStr = [p.subj&&p.subj.name, p.paper&&p.paper.name, p.chapter&&p.chapter.name, p.topic&&p.topic.name].filter(Boolean).map(escapeHtml).join(' / ');
+    var cover = b.cover_image_url ? '<img src="'+escapeHtml(b.cover_image_url)+'" style="width:100%;max-width:280px;border-radius:14px;box-shadow:var(--shadow);">' : '';
+    var previewBtn = b.preview_pdf_url ? '<a href="'+escapeHtml(b.preview_pdf_url)+'" target="_blank" rel="noopener" class="btn btn-ghost bn">📄 প্রিভিউ দেখো</a>' : '';
+    var inStock = b.stock_quantity > 0;
+    document.getElementById('bookDetailBody').innerHTML =
+      '<div style="display:grid; grid-template-columns:280px 1fr; gap:32px;">'+
+        '<div>'+cover+'</div>'+
+        '<div>'+
+          '<div class="badge bn" style="margin-bottom:10px;">'+pathStr+'</div>'+
+          '<h1 class="bn" style="font-size:24px; margin-bottom:10px;">'+escapeHtml(b.title)+'</h1>'+
+          '<p class="bn" style="font-size:13.5px; margin-bottom:14px;">লেখক: '+escapeHtml(b.author||'')+(b.edition?(' · সংস্করণ: '+escapeHtml(b.edition)):'')+(b.page_count?(' · '+b.page_count+' পৃষ্ঠা'):'')+'</p>'+
+          '<p class="bn" style="margin-bottom:18px;">'+escapeHtml(b.short_description||'')+'</p>'+
+          '<div class="price-row" style="border-top:none; padding-top:0; margin-bottom:18px;"><span class="price-now" style="font-size:26px;">৳'+Number(b.price).toLocaleString('en-US')+'</span></div>'+
+          (inStock ? '' : '<p class="bn" style="color:var(--accent-2); font-weight:600; margin-bottom:14px;">দুঃখিত, বর্তমানে স্টকে নেই।</p>')+
+          '<div style="display:flex; gap:12px; flex-wrap:wrap;">'+
+            previewBtn+
+            (inStock ? '<button type="button" class="btn btn-primary bn" id="buyNowBtn">এখনই অর্ডার করো</button>' : '')+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    showView('book-detail');
+    setTimeout(function(){
+      var bn = document.getElementById('buyNowBtn');
+      if(bn) bn.addEventListener('click', function(){ openCheckout(b); });
+    },0);
+  }
+
+  function openCheckout(book){
+    bsCheckoutBook = { book: book, qty: 1 };
+    renderCheckoutForm();
+    showView('book-checkout');
+  }
+
+  function renderCheckoutForm(){
+    var b = bsCheckoutBook.book;
+    var qty = bsCheckoutBook.qty;
+    var zoneOptions = bsDeliveryRules.map(function(r){ return '<option value="'+escapeHtml(r.zone_key)+'">'+escapeHtml(r.zone_label)+' (৳'+r.charge+')</option>'; }).join('');
+    var payOptions = '';
+    if(bsPaymentSettings){
+      if(bsPaymentSettings.bkash_enabled) payOptions += '<option value="bkash">বিকাশ</option>';
+      if(bsPaymentSettings.nagad_enabled) payOptions += '<option value="nagad">নগদ</option>';
+    }
+    document.getElementById('bookCheckoutBody').innerHTML =
+      '<div class="section-head"><span class="kicker bn">অর্ডার করো</span><h2 class="bn" style="font-size:22px;">'+escapeHtml(b.title)+'</h2></div>'+
+      '<div class="card" style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">'+
+        '<span class="bn">পরিমাণ</span>'+
+        '<div style="display:flex; align-items:center; gap:12px;">'+
+          '<button type="button" id="qtyMinus" style="width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:none;cursor:pointer;font-size:18px;">−</button>'+
+          '<span id="qtyDisplay" style="min-width:24px; text-align:center; font-weight:700;">'+qty+'</span>'+
+          '<button type="button" id="qtyPlus" style="width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:none;cursor:pointer;font-size:18px;">+</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="card" style="padding:26px;">'+
+        '<h3 class="bn" style="font-size:15px; margin-bottom:14px;">ডেলিভারি ঠিকানা</h3>'+
+        '<div class="efield"><label class="bn">নাম</label><input type="text" id="coName" class="bn"></div>'+
+        '<div class="efield"><label class="bn">ফোন নম্বর</label><input type="text" id="coPhone" class="bn" placeholder="01XXXXXXXXX"></div>'+
+        '<div class="efield"><label class="bn">বিকল্প ফোন (ঐচ্ছিক)</label><input type="text" id="coPhoneAlt" class="bn"></div>'+
+        '<div class="efield"><label class="bn">ইমেইল (ঐচ্ছিক)</label><input type="text" id="coEmail" class="bn"></div>'+
+        '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'+
+          '<div class="efield"><label class="bn">বিভাগ</label><input type="text" id="coDivision" class="bn"></div>'+
+          '<div class="efield"><label class="bn">জেলা</label><input type="text" id="coDistrict" class="bn"></div>'+
+        '</div>'+
+        '<div class="efield"><label class="bn">উপজেলা</label><input type="text" id="coUpazila" class="bn"></div>'+
+        '<div class="efield"><label class="bn">বাসা/বিল্ডিং</label><input type="text" id="coHouse" class="bn"></div>'+
+        '<div class="efield"><label class="bn">সম্পূর্ণ ঠিকানা</label><input type="text" id="coAddress" class="bn"></div>'+
+        '<div class="efield"><label class="bn">পোস্ট কোড (ঐচ্ছিক)</label><input type="text" id="coPostal" class="bn"></div>'+
+        '<div class="efield"><label class="bn">ডেলিভারি জোন</label><select id="coZone" class="bn">'+zoneOptions+'</select></div>'+
+        '<h3 class="bn" style="font-size:15px; margin:20px 0 14px;">পেমেন্ট</h3>'+
+        (payOptions ? (
+          '<div class="efield"><label class="bn">পেমেন্ট মাধ্যম</label><select id="coPayMethod" class="bn">'+payOptions+'</select></div>'+
+          '<div id="coPayInstructions" class="card bn" style="background:var(--surface-2); font-size:13px; margin-bottom:16px;"></div>'+
+          '<div class="efield"><label class="bn">Transaction ID</label><input type="text" id="coTrxId" class="bn"></div>'+
+          '<div class="efield"><label class="bn">যে নম্বর থেকে পাঠিয়েছো</label><input type="text" id="coSenderPhone" class="bn"></div>'+
+          '<div class="efield"><label class="bn">পেমেন্ট স্ক্রিনশট (ঐচ্ছিক)</label><input type="file" id="coScreenshot" accept="image/*"></div>'
+        ) : '<p class="bn" style="color:var(--accent-2);">এই মুহূর্তে কোনো পেমেন্ট মাধ্যম চালু নেই। দয়া করে পরে চেষ্টা করো।</p>')+
+        '<button type="button" class="btn btn-primary bn" id="placeOrderBtn" style="width:100%; margin-top:16px;" '+(payOptions?'':'disabled')+'>অর্ডার কনফার্ম করো</button>'+
+        '<p id="coError" class="bn" style="color:var(--accent-2); font-size:13px; margin-top:10px;"></p>'+
+      '</div>';
+
+    function updatePayInstructions(){
+      var sel = document.getElementById('coPayMethod');
+      if(!sel) return;
+      var box = document.getElementById('coPayInstructions');
+      if(sel.value === 'bkash'){
+        box.innerHTML = '📱 বিকাশ নম্বর (Send Money): <b>'+escapeHtml(bsPaymentSettings.bkash_number||'')+'</b><br>'+escapeHtml(bsPaymentSettings.bkash_instructions||'');
+      } else {
+        box.innerHTML = '📱 নগদ নম্বর (Send Money): <b>'+escapeHtml(bsPaymentSettings.nagad_number||'')+'</b><br>'+escapeHtml(bsPaymentSettings.nagad_instructions||'');
+      }
+    }
+    var payMethodSel = document.getElementById('coPayMethod');
+    if(payMethodSel){ payMethodSel.addEventListener('change', updatePayInstructions); updatePayInstructions(); }
+
+    document.getElementById('qtyMinus').addEventListener('click', function(){
+      if(bsCheckoutBook.qty > 1){ bsCheckoutBook.qty--; document.getElementById('qtyDisplay').textContent = bsCheckoutBook.qty; }
+    });
+    document.getElementById('qtyPlus').addEventListener('click', function(){
+      if(bsCheckoutBook.qty < b.stock_quantity){ bsCheckoutBook.qty++; document.getElementById('qtyDisplay').textContent = bsCheckoutBook.qty; }
+    });
+
+    document.getElementById('placeOrderBtn').addEventListener('click', submitBookOrder);
+  }
+
+  async function submitBookOrder(){
+    var errEl = document.getElementById('coError');
+    errEl.textContent = '';
+    var name = document.getElementById('coName').value.trim();
+    var phone = document.getElementById('coPhone').value.trim();
+    var address = document.getElementById('coAddress').value.trim();
+    var zone = document.getElementById('coZone').value;
+    var payMethod = document.getElementById('coPayMethod') ? document.getElementById('coPayMethod').value : '';
+    var trxId = document.getElementById('coTrxId') ? document.getElementById('coTrxId').value.trim() : '';
+    var senderPhone = document.getElementById('coSenderPhone') ? document.getElementById('coSenderPhone').value.trim() : '';
+    if(!name || !phone || !address || !zone){ errEl.textContent = 'নাম, ফোন, ঠিকানা ও ডেলিভারি জোন দাও।'; return; }
+    if(!payMethod || !trxId){ errEl.textContent = 'পেমেন্ট মাধ্যম ও Transaction ID দাও।'; return; }
+
+    var btn = document.getElementById('placeOrderBtn');
+    btn.disabled = true;
+    btn.textContent = 'অর্ডার হচ্ছে...';
+
+    try{
+      var screenshotPath = null;
+      var fileInput = document.getElementById('coScreenshot');
+      var file = fileInput && fileInput.files[0];
+      if(file){
+        var ext = (file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+        var fname = 'proof_' + Date.now() + '_' + Math.random().toString(36).slice(2,8) + '.' + ext;
+        var up = await sb.storage.from('payment-proofs').upload(fname, file, { upsert:false });
+        if(!up.error) screenshotPath = fname;
+      }
+
+      var items = [{ book_id: bsCheckoutBook.book.id, quantity: bsCheckoutBook.qty }];
+      var { data, error } = await sb.rpc('create_book_order', {
+        p_customer_name: name,
+        p_customer_phone: phone,
+        p_customer_phone_alt: document.getElementById('coPhoneAlt').value.trim() || null,
+        p_customer_email: document.getElementById('coEmail').value.trim() || null,
+        p_division: document.getElementById('coDivision').value.trim() || null,
+        p_district: document.getElementById('coDistrict').value.trim() || null,
+        p_upazila: document.getElementById('coUpazila').value.trim() || null,
+        p_house_building: document.getElementById('coHouse').value.trim() || null,
+        p_address_line: address,
+        p_postal_code: document.getElementById('coPostal').value.trim() || null,
+        p_delivery_zone: zone,
+        p_payment_method: payMethod,
+        p_transaction_id: trxId,
+        p_sender_phone: senderPhone || null,
+        p_payment_screenshot_path: screenshotPath,
+        p_items: items
+      });
+      if(error) throw error;
+      if(data && data.error) throw new Error(data.error);
+      showOrderConfirm(data);
+    }catch(e){
+      errEl.textContent = 'অর্ডার করা যায়নি: ' + (e.message || e);
+      btn.disabled = false;
+      btn.textContent = 'অর্ডার কনফার্ম করো';
+    }
+  }
+
+  function showOrderConfirm(result){
+    var orderNumber = (result && (result.order_number || (result.order && result.order.order_number))) || '';
+    var total = (result && (result.total || (result.order && result.order.total))) || '';
+    document.getElementById('bookCheckoutBody').innerHTML =
+      '<div class="card" style="padding:36px; text-align:center;">'+
+        '<div style="font-size:44px; margin-bottom:14px;">✅</div>'+
+        '<h2 class="bn" style="font-size:22px; margin-bottom:10px;">অর্ডার সফল হয়েছে!</h2>'+
+        '<p class="bn" style="margin-bottom:6px;">তোমার অর্ডার নম্বর:</p>'+
+        '<p style="font-size:22px; font-weight:700; color:var(--primary-d); margin-bottom:14px;">'+escapeHtml(String(orderNumber))+'</p>'+
+        (total ? ('<p class="bn" style="margin-bottom:20px;">মোট: ৳'+total+'</p>') : '')+
+        '<p class="bn" style="font-size:13px; color:var(--ink-soft); margin-bottom:20px;">পেমেন্ট যাচাই হওয়ার পর আমরা তোমার সাথে যোগাযোগ করব। অর্ডার নম্বর ও ফোন নম্বর দিয়ে যেকোনো সময় স্ট্যাটাস দেখতে পারবে।</p>'+
+        '<button type="button" class="btn btn-primary bn nav-link" data-target="bookstore">বই স্টোরে ফিরে যাও</button>'+
+      '</div>';
+  }
+
+  try{
+    document.getElementById('backToBookDetail').addEventListener('click', function(){
+      if(bsCheckoutBook && bsCheckoutBook.book) openBookDetail(bsCheckoutBook.book.id);
+      else showView('bookstore');
+    });
+
+    document.getElementById('trackSubmitBtn').addEventListener('click', async function(){
+      var num = document.getElementById('trackOrderNumber').value.trim();
+      var phone = document.getElementById('trackPhone').value.trim();
+      var errEl = document.getElementById('trackError');
+      errEl.textContent = '';
+      document.getElementById('trackResult').innerHTML = '';
+      if(!num || !phone){ errEl.textContent = 'অর্ডার নম্বর ও ফোন নম্বর দাও।'; return; }
+      try{
+        var { data, error } = await sb.rpc('get_order_by_number_and_phone', { p_order_number: num, p_phone: phone });
+        if(error) throw error;
+        if(!data || data.error){ errEl.textContent = 'এই তথ্যে কোনো অর্ডার পাওয়া যায়নি।'; return; }
+        var o = data;
+        document.getElementById('trackResult').innerHTML =
+          '<div class="card bn" style="padding:22px;">'+
+            '<p style="margin-bottom:6px;"><b>অর্ডার:</b> #'+escapeHtml(String(o.order_number||num))+'</p>'+
+            '<p style="margin-bottom:6px;"><b>পেমেন্ট স্ট্যাটাস:</b> '+escapeHtml(String(o.payment_status||'—'))+'</p>'+
+            '<p style="margin-bottom:6px;"><b>অর্ডার স্ট্যাটাস:</b> '+escapeHtml(String(o.order_status||'—'))+'</p>'+
+            (o.courier_name ? ('<p style="margin-bottom:6px;"><b>কুরিয়ার:</b> '+escapeHtml(o.courier_name)+'</p>') : '')+
+            (o.tracking_id ? ('<p style="margin-bottom:6px;"><b>ট্র্যাকিং আইডি:</b> '+escapeHtml(o.tracking_id)+'</p>') : '')+
+            (o.total ? ('<p style="margin-top:10px;"><b>মোট:</b> ৳'+o.total+'</p>') : '')+
+          '</div>';
+      }catch(e){
+        errEl.textContent = 'কিছু একটা ভুল হয়েছে: ' + (e.message||e);
+      }
+    });
   }catch(e){}
 })();
 </script>
