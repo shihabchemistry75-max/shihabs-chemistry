@@ -92,6 +92,7 @@
     <button data-tab="routine">রুটিন</button>
     <button data-tab="resources">রিসোর্স</button>
     <button data-tab="ads">বিজ্ঞাপন স্লাইড</button>
+    <button data-tab="bookstore">📚 বই স্টোর</button>
   </div>
 
   <!-- SITE INFO -->
@@ -217,6 +218,124 @@
     <img id="adPreview" style="display:none; max-width:220px; max-height:130px; object-fit:cover; border-radius:8px; margin-bottom:12px;">
     <button class="btn-primary" id="adAddBtn">আপলোড করো</button>
   </section>
+
+  <!-- BOOK STORE -->
+  <section data-panel="bookstore" class="card hidden">
+    <h2>📚 বিষয় → পত্র → অধ্যায় → টপিক কাঠামো</h2>
+    <p style="font-size:12.5px; color:var(--ink-soft); margin-top:-8px;">প্রথমে বিষয় (Subject) যোগ করো, তারপর তার নিচে পত্র (Paper), তারপর অধ্যায় (Chapter), তারপর টপিক (Topic)। প্রতিটা বই একটা টপিকের নিচে থাকবে।</p>
+
+    <h3 style="font-size:14px;">বিষয় (Subject)</h3>
+    <table><thead><tr><th>নাম</th><th>Slug</th><th>Order</th><th></th></tr></thead><tbody id="bsSubjectTable"></tbody></table>
+    <div class="row">
+      <div><label>নতুন বিষয়ের নাম</label><input type="text" id="bsNewSubjectName" placeholder="রসায়ন"></div>
+      <div><label>Slug (ইংরেজি)</label><input type="text" id="bsNewSubjectSlug" placeholder="chemistry"></div>
+      <div><label>Order</label><input type="number" id="bsNewSubjectSort" value="0"></div>
+    </div>
+    <button class="btn-primary" id="bsAddSubjectBtn">বিষয় যোগ করো</button>
+
+    <h3 style="font-size:14px; margin-top:24px;">পত্র (Paper)</h3>
+    <table><thead><tr><th>বিষয়</th><th>নাম</th><th>Order</th><th></th></tr></thead><tbody id="bsPaperTable"></tbody></table>
+    <div class="row">
+      <div><label>বিষয় বেছে নাও</label><select id="bsNewPaperSubject"></select></div>
+      <div><label>পত্রের নাম</label><input type="text" id="bsNewPaperName" placeholder="১ম পত্র"></div>
+    </div>
+    <div class="row">
+      <div><label>Slug</label><input type="text" id="bsNewPaperSlug" placeholder="1st-paper"></div>
+      <div><label>Order</label><input type="number" id="bsNewPaperSort" value="0"></div>
+    </div>
+    <button class="btn-primary" id="bsAddPaperBtn">পত্র যোগ করো</button>
+
+    <h3 style="font-size:14px; margin-top:24px;">অধ্যায় (Chapter)</h3>
+    <table><thead><tr><th>পত্র</th><th>নাম</th><th>Order</th><th></th></tr></thead><tbody id="bsChapterTable"></tbody></table>
+    <div class="row">
+      <div><label>পত্র বেছে নাও</label><select id="bsNewChapterPaper"></select></div>
+      <div><label>অধ্যায়ের নাম</label><input type="text" id="bsNewChapterName" placeholder="অধ্যায় ১: গুণগত রসায়ন"></div>
+    </div>
+    <div class="row">
+      <div><label>Slug</label><input type="text" id="bsNewChapterSlug" placeholder="chapter-1"></div>
+      <div><label>Order</label><input type="number" id="bsNewChapterSort" value="0"></div>
+    </div>
+    <button class="btn-primary" id="bsAddChapterBtn">অধ্যায় যোগ করো</button>
+
+    <h3 style="font-size:14px; margin-top:24px;">টপিক (Topic)</h3>
+    <table><thead><tr><th>অধ্যায়</th><th>নাম</th><th>Order</th><th></th></tr></thead><tbody id="bsTopicTable"></tbody></table>
+    <div class="row">
+      <div><label>অধ্যায় বেছে নাও</label><select id="bsNewTopicChapter"></select></div>
+      <div><label>টপিকের নাম</label><input type="text" id="bsNewTopicName" placeholder="কোয়ান্টাম নম্বর"></div>
+    </div>
+    <div class="row">
+      <div><label>Slug</label><input type="text" id="bsNewTopicSlug" placeholder="quantum-number"></div>
+      <div><label>Order</label><input type="number" id="bsNewTopicSort" value="0"></div>
+    </div>
+    <button class="btn-primary" id="bsAddTopicBtn">টপিক যোগ করো</button>
+  </section>
+
+  <section data-panel="bookstore" class="card hidden">
+    <h2>📖 বই ব্যবস্থাপনা</h2>
+    <table><thead><tr><th>কভার</th><th>বই</th><th>টপিক</th><th>দাম</th><th>স্টক</th><th></th></tr></thead><tbody id="bsBookTable"></tbody></table>
+    <h3 style="font-size:14px; margin-top:20px;">নতুন বই যোগ করো</h3>
+    <div class="row">
+      <div><label>টপিক বেছে নাও</label><select id="bkNewTopic"></select></div>
+      <div><label>বইয়ের নাম</label><input type="text" id="bkNewTitle" placeholder="রসায়ন পিডিয়া — কোয়ান্টাম নম্বর"></div>
+    </div>
+    <div class="row">
+      <div><label>Slug (ইউনিক)</label><input type="text" id="bkNewSlug" placeholder="rasayan-pedia-quantum-number"></div>
+      <div><label>সিরিজের নাম</label><input type="text" id="bkNewSeries" value="রসায়ন পিডিয়া"></div>
+      <div><label>লেখক</label><input type="text" id="bkNewAuthor" placeholder="SHIHAB"></div>
+    </div>
+    <label>সংক্ষিপ্ত বিবরণ</label>
+    <textarea id="bkNewDesc"></textarea>
+    <div class="row">
+      <div><label>দাম (৳)</label><input type="number" id="bkNewPrice" value="0"></div>
+      <div><label>স্টক পরিমাণ</label><input type="number" id="bkNewStock" value="0"></div>
+      <div><label>Low stock alert</label><input type="number" id="bkNewLowStock" value="3"></div>
+    </div>
+    <div class="row">
+      <div><label>SKU (ঐচ্ছিক)</label><input type="text" id="bkNewSku" placeholder="RP-QN-001"></div>
+      <div><label>Edition (ঐচ্ছিক)</label><input type="text" id="bkNewEdition"></div>
+      <div><label>পৃষ্ঠা সংখ্যা (ঐচ্ছিক)</label><input type="number" id="bkNewPages"></div>
+    </div>
+    <div class="row">
+      <div><label>🖼️ কভার ছবি (গ্যালারি)</label><input type="file" id="bkNewCover" accept="image/*"></div>
+      <div><label>📄 প্রিভিউ PDF (সবাই দেখতে পারবে)</label><input type="file" id="bkNewPreviewPdf" accept="application/pdf"></div>
+    </div>
+    <div class="row">
+      <div><label>🔒 ফুল PDF (গোপন — শুধু অ্যাডমিন)</label><input type="file" id="bkNewFullPdf" accept="application/pdf"></div>
+    </div>
+    <div class="row" style="align-items:center;">
+      <label style="display:flex; align-items:center; gap:6px; margin:0;"><input type="checkbox" id="bkNewFeatured" style="width:auto; margin:0;"> ফিচার্ড</label>
+      <label style="display:flex; align-items:center; gap:6px; margin:0;"><input type="checkbox" id="bkNewBestseller" style="width:auto; margin:0;"> বেস্টসেলার</label>
+      <label style="display:flex; align-items:center; gap:6px; margin:0;"><input type="checkbox" id="bkNewIsNew" style="width:auto; margin:0;" checked> নতুন</label>
+      <label style="display:flex; align-items:center; gap:6px; margin:0;"><input type="checkbox" id="bkNewEnabled" style="width:auto; margin:0;" checked> সাইটে দেখাও</label>
+    </div>
+    <button class="btn-primary" id="bkAddBtn">বই যোগ করো</button>
+  </section>
+
+  <section data-panel="bookstore" class="card hidden">
+    <h2>📦 বই অর্ডার তালিকা</h2>
+    <p style="font-size:12.5px; color:var(--ink-soft); margin-top:-8px;">নতুন অর্ডার সবার উপরে দেখাবে। পেমেন্ট যাচাই করে স্ট্যাটাস আপডেট করো।</p>
+    <div id="bsOrdersList"></div>
+  </section>
+
+  <section data-panel="bookstore" class="card hidden">
+    <h2>💳 পেমেন্ট নম্বর সেটিংস</h2>
+    <div class="row" style="align-items:center;">
+      <label style="display:flex; align-items:center; gap:6px; margin:0;"><input type="checkbox" id="psBkashEnabled" style="width:auto; margin:0;"> বিকাশ চালু</label>
+      <label style="display:flex; align-items:center; gap:6px; margin:0;"><input type="checkbox" id="psNagadEnabled" style="width:auto; margin:0;"> নগদ চালু</label>
+    </div>
+    <div class="row">
+      <div><label>বিকাশ নম্বর (Send Money)</label><input type="text" id="psBkashNumber"></div>
+      <div><label>নগদ নম্বর (Send Money)</label><input type="text" id="psNagadNumber"></div>
+    </div>
+    <div class="row">
+      <div><label>বিকাশ নির্দেশনা</label><textarea id="psBkashInstructions"></textarea></div>
+      <div><label>নগদ নির্দেশনা</label><textarea id="psNagadInstructions"></textarea></div>
+    </div>
+    <button class="btn-primary" id="psSaveBtn">সেভ করো</button>
+
+    <h3 style="font-size:14px; margin-top:24px;">ডেলিভারি চার্জ</h3>
+    <table><thead><tr><th>জোন</th><th>চার্জ (৳)</th><th></th></tr></thead><tbody id="drTable"></tbody></table>
+  </section>
 </div>
 
 <script>
@@ -315,7 +434,7 @@
       document.querySelectorAll('.tabbar button').forEach(function(b){ b.setAttribute('aria-current','false'); });
       btn.setAttribute('aria-current','true');
       document.querySelectorAll('[data-panel]').forEach(function(p){ p.classList.add('hidden'); });
-      document.querySelector('[data-panel="'+btn.dataset.tab+'"]').classList.remove('hidden');
+      document.querySelectorAll('[data-panel="'+btn.dataset.tab+'"]').forEach(function(p){ p.classList.remove('hidden'); });
     });
   });
 
@@ -326,6 +445,7 @@
     loadRoutine();
     loadResources();
     loadAdSlides();
+    loadBookstore();
   }
 
   /* -------- SITE INFO -------- */
@@ -603,6 +723,374 @@
       loadResources();
     }
   });
+
+/* ================= BOOK STORE (রসায়ন পিডিয়া) ================= */
+  var bsSubjects = [], bsPapers = [], bsChapters = [], bsTopics = [], bsBooks = [];
+  var PAY_LABEL = {pending:'পেন্ডিং', under_review:'যাচাই চলছে', paid:'পরিশোধিত', rejected:'বাতিল', refunded:'ফেরত'};
+  var ORDER_LABEL = {pending:'পেন্ডিং', confirmed:'কনফার্মড', processing:'প্রসেসিং', ready_for_shipment:'শিপমেন্টের জন্য প্রস্তুত', shipped:'পাঠানো হয়েছে', delivered:'ডেলিভার্ড', cancelled:'বাতিল'};
+
+  function loadBookstore(){
+    loadBsSubjects();
+    loadBsPapers();
+    loadBsChapters();
+    loadBsTopics();
+    loadBsBooks();
+    loadBsOrders();
+    loadPaymentSettings();
+    loadDeliveryRules();
+  }
+
+  /* ---- Subjects ---- */
+  async function loadBsSubjects(){
+    var { data, error } = await sb.from('book_subjects').select('*').order('sort_order');
+    if(error) return;
+    bsSubjects = data || [];
+    document.getElementById('bsSubjectTable').innerHTML = bsSubjects.map(function(s){
+      return '<tr><td>'+escapeHtml(s.name)+'</td><td>'+escapeHtml(s.slug)+'</td><td>'+s.sort_order+'</td>'+
+        '<td class="item-actions"><button class="btn-danger" data-del-bs-subject="'+s.id+'">মুছো</button></td></tr>';
+    }).join('') || '<tr><td colspan="4" style="color:var(--ink-soft);">এখনো কোনো বিষয় নেই।</td></tr>';
+    var sel = document.getElementById('bsNewPaperSubject');
+    sel.innerHTML = bsSubjects.map(function(s){ return '<option value="'+s.id+'">'+escapeHtml(s.name)+'</option>'; }).join('');
+    document.querySelectorAll('[data-del-bs-subject]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        if(!confirm('এই বিষয় মুছে ফেলবে? (এর নিচে থাকা সব পত্র/অধ্যায়/টপিক/বইও মুছে যেতে পারে)')) return;
+        var { error } = await sb.from('book_subjects').delete().eq('id', btn.dataset.delBsSubject);
+        setStatus(error ? error.message : 'মুছে ফেলা হয়েছে', !!error);
+        loadBookstore();
+      });
+    });
+  }
+  document.getElementById('bsAddSubjectBtn').addEventListener('click', async function(){
+    var name = document.getElementById('bsNewSubjectName').value.trim();
+    var slug = document.getElementById('bsNewSubjectSlug').value.trim();
+    var sort = Number(document.getElementById('bsNewSubjectSort').value)||0;
+    if(!name || !slug){ alert('নাম ও slug দাও।'); return; }
+    var { error } = await sb.from('book_subjects').insert({ name: name, slug: slug, sort_order: sort });
+    setStatus(error ? error.message : 'বিষয় যোগ হয়েছে ✓', !!error);
+    if(!error){ document.getElementById('bsNewSubjectName').value=''; document.getElementById('bsNewSubjectSlug').value=''; loadBsSubjects(); }
+  });
+
+  /* ---- Papers ---- */
+  async function loadBsPapers(){
+    var { data, error } = await sb.from('book_papers').select('*, book_subjects(name)').order('sort_order');
+    if(error) return;
+    bsPapers = data || [];
+    document.getElementById('bsPaperTable').innerHTML = bsPapers.map(function(p){
+      return '<tr><td>'+escapeHtml((p.book_subjects||{}).name||'—')+'</td><td>'+escapeHtml(p.name)+'</td><td>'+p.sort_order+'</td>'+
+        '<td class="item-actions"><button class="btn-danger" data-del-bs-paper="'+p.id+'">মুছো</button></td></tr>';
+    }).join('') || '<tr><td colspan="4" style="color:var(--ink-soft);">এখনো কোনো পত্র নেই।</td></tr>';
+    var sel = document.getElementById('bsNewChapterPaper');
+    sel.innerHTML = bsPapers.map(function(p){ return '<option value="'+p.id+'">'+escapeHtml((p.book_subjects||{}).name||'')+' / '+escapeHtml(p.name)+'</option>'; }).join('');
+    document.querySelectorAll('[data-del-bs-paper]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        if(!confirm('এই পত্র মুছে ফেলবে?')) return;
+        var { error } = await sb.from('book_papers').delete().eq('id', btn.dataset.delBsPaper);
+        setStatus(error ? error.message : 'মুছে ফেলা হয়েছে', !!error);
+        loadBookstore();
+      });
+    });
+  }
+  document.getElementById('bsAddPaperBtn').addEventListener('click', async function(){
+    var subjectId = document.getElementById('bsNewPaperSubject').value;
+    var name = document.getElementById('bsNewPaperName').value.trim();
+    var slug = document.getElementById('bsNewPaperSlug').value.trim();
+    var sort = Number(document.getElementById('bsNewPaperSort').value)||0;
+    if(!subjectId){ alert('আগে একটা বিষয় যোগ করো।'); return; }
+    if(!name || !slug){ alert('নাম ও slug দাও।'); return; }
+    var { error } = await sb.from('book_papers').insert({ subject_id: subjectId, name: name, slug: slug, sort_order: sort });
+    setStatus(error ? error.message : 'পত্র যোগ হয়েছে ✓', !!error);
+    if(!error){ document.getElementById('bsNewPaperName').value=''; document.getElementById('bsNewPaperSlug').value=''; loadBsPapers(); }
+  });
+
+  /* ---- Chapters ---- */
+  async function loadBsChapters(){
+    var { data, error } = await sb.from('book_chapters').select('*, book_papers(name, book_subjects(name))').order('sort_order');
+    if(error) return;
+    bsChapters = data || [];
+    document.getElementById('bsChapterTable').innerHTML = bsChapters.map(function(c){
+      var paper = c.book_papers||{}; var subj = paper.book_subjects||{};
+      return '<tr><td>'+escapeHtml(subj.name||'')+' / '+escapeHtml(paper.name||'')+'</td><td>'+escapeHtml(c.name)+'</td><td>'+c.sort_order+'</td>'+
+        '<td class="item-actions"><button class="btn-danger" data-del-bs-chapter="'+c.id+'">মুছো</button></td></tr>';
+    }).join('') || '<tr><td colspan="4" style="color:var(--ink-soft);">এখনো কোনো অধ্যায় নেই।</td></tr>';
+    var sel = document.getElementById('bsNewTopicChapter');
+    sel.innerHTML = bsChapters.map(function(c){
+      var paper = c.book_papers||{}; var subj = paper.book_subjects||{};
+      return '<option value="'+c.id+'">'+escapeHtml(subj.name||'')+' / '+escapeHtml(paper.name||'')+' / '+escapeHtml(c.name)+'</option>';
+    }).join('');
+    document.querySelectorAll('[data-del-bs-chapter]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        if(!confirm('এই অধ্যায় মুছে ফেলবে?')) return;
+        var { error } = await sb.from('book_chapters').delete().eq('id', btn.dataset.delBsChapter);
+        setStatus(error ? error.message : 'মুছে ফেলা হয়েছে', !!error);
+        loadBookstore();
+      });
+    });
+  }
+  document.getElementById('bsAddChapterBtn').addEventListener('click', async function(){
+    var paperId = document.getElementById('bsNewChapterPaper').value;
+    var name = document.getElementById('bsNewChapterName').value.trim();
+    var slug = document.getElementById('bsNewChapterSlug').value.trim();
+    var sort = Number(document.getElementById('bsNewChapterSort').value)||0;
+    if(!paperId){ alert('আগে একটা পত্র যোগ করো।'); return; }
+    if(!name || !slug){ alert('নাম ও slug দাও।'); return; }
+    var { error } = await sb.from('book_chapters').insert({ paper_id: paperId, name: name, slug: slug, sort_order: sort });
+    setStatus(error ? error.message : 'অধ্যায় যোগ হয়েছে ✓', !!error);
+    if(!error){ document.getElementById('bsNewChapterName').value=''; document.getElementById('bsNewChapterSlug').value=''; loadBsChapters(); }
+  });
+
+  /* ---- Topics ---- */
+  async function loadBsTopics(){
+    var { data, error } = await sb.from('book_topics').select('*, book_chapters(name, book_papers(name, book_subjects(name)))').order('sort_order');
+    if(error) return;
+    bsTopics = data || [];
+    document.getElementById('bsTopicTable').innerHTML = bsTopics.map(function(t){
+      var ch = t.book_chapters||{}; var paper = ch.book_papers||{}; var subj = paper.book_subjects||{};
+      return '<tr><td style="font-size:12px;">'+escapeHtml(subj.name||'')+' / '+escapeHtml(paper.name||'')+' / '+escapeHtml(ch.name||'')+'</td><td>'+escapeHtml(t.name)+'</td><td>'+t.sort_order+'</td>'+
+        '<td class="item-actions"><button class="btn-danger" data-del-bs-topic="'+t.id+'">মুছো</button></td></tr>';
+    }).join('') || '<tr><td colspan="4" style="color:var(--ink-soft);">এখনো কোনো টপিক নেই।</td></tr>';
+    var sel = document.getElementById('bkNewTopic');
+    sel.innerHTML = bsTopics.map(function(t){
+      var ch = t.book_chapters||{}; var paper = ch.book_papers||{}; var subj = paper.book_subjects||{};
+      return '<option value="'+t.id+'">'+escapeHtml(subj.name||'')+' / '+escapeHtml(paper.name||'')+' / '+escapeHtml(ch.name||'')+' / '+escapeHtml(t.name)+'</option>';
+    }).join('');
+    document.querySelectorAll('[data-del-bs-topic]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        if(!confirm('এই টপিক মুছে ফেলবে?')) return;
+        var { error } = await sb.from('book_topics').delete().eq('id', btn.dataset.delBsTopic);
+        setStatus(error ? error.message : 'মুছে ফেলা হয়েছে', !!error);
+        loadBookstore();
+      });
+    });
+  }
+  document.getElementById('bsAddTopicBtn').addEventListener('click', async function(){
+    var chapterId = document.getElementById('bsNewTopicChapter').value;
+    var name = document.getElementById('bsNewTopicName').value.trim();
+    var slug = document.getElementById('bsNewTopicSlug').value.trim();
+    var sort = Number(document.getElementById('bsNewTopicSort').value)||0;
+    if(!chapterId){ alert('আগে একটা অধ্যায় যোগ করো।'); return; }
+    if(!name || !slug){ alert('নাম ও slug দাও।'); return; }
+    var { error } = await sb.from('book_topics').insert({ chapter_id: chapterId, name: name, slug: slug, sort_order: sort });
+    setStatus(error ? error.message : 'টপিক যোগ হয়েছে ✓', !!error);
+    if(!error){ document.getElementById('bsNewTopicName').value=''; document.getElementById('bsNewTopicSlug').value=''; loadBsTopics(); }
+  });
+
+  /* ---- Books ---- */
+  async function loadBsBooks(){
+    var { data, error } = await sb.from('books').select('*, book_topics(name, book_chapters(name, book_papers(name, book_subjects(name))))').order('sort_order');
+    if(error) return;
+    bsBooks = data || [];
+    document.getElementById('bsBookTable').innerHTML = bsBooks.map(function(b){
+      var t = b.book_topics||{}; var ch = t.book_chapters||{}; var paper = ch.book_papers||{}; var subj = paper.book_subjects||{};
+      var path = [subj.name, paper.name, ch.name, t.name].filter(Boolean).map(escapeHtml).join(' / ');
+      var cover = b.cover_image_url ? '<img src="'+escapeHtml(b.cover_image_url)+'" style="width:46px;height:60px;object-fit:cover;border-radius:4px;">' : '—';
+      var fullPdfBtn = b.full_pdf_path ? '<button class="btn-ghost" data-view-full-pdf="'+escapeHtml(b.full_pdf_path)+'" style="font-size:11px; padding:4px 8px;">🔒 ফুল PDF</button>' : '';
+      return '<tr><td>'+cover+'</td>'+
+        '<td>'+escapeHtml(b.title)+(b.is_enabled?'':' <span class="tag" style="background:#f3d9d0;">হাইড</span>')+'</td>'+
+        '<td style="font-size:11.5px; color:var(--ink-soft);">'+path+'</td>'+
+        '<td><input type="number" value="'+b.price+'" data-price-book="'+b.id+'" style="width:80px; margin:0;"></td>'+
+        '<td><input type="number" value="'+b.stock_quantity+'" data-stock-book="'+b.id+'" style="width:70px; margin:0;"></td>'+
+        '<td class="item-actions" style="flex-wrap:wrap;">'+
+          '<button class="btn-ghost" data-save-book="'+b.id+'" style="font-size:11px; padding:4px 8px;">সেভ</button>'+
+          '<button class="btn-ghost" data-toggle-book="'+b.id+'" data-enabled="'+b.is_enabled+'" style="font-size:11px; padding:4px 8px;">'+(b.is_enabled?'হাইড করো':'দেখাও')+'</button>'+
+          fullPdfBtn+
+          '<button class="btn-danger" data-del-book="'+b.id+'">মুছো</button>'+
+        '</td></tr>';
+    }).join('') || '<tr><td colspan="6" style="color:var(--ink-soft);">এখনো কোনো বই যোগ করা হয়নি।</td></tr>';
+
+    document.querySelectorAll('[data-save-book]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        var id = btn.dataset.saveBook;
+        var price = Number(document.querySelector('[data-price-book="'+id+'"]').value)||0;
+        var stock = Number(document.querySelector('[data-stock-book="'+id+'"]').value)||0;
+        var { error } = await sb.from('books').update({ price: price, stock_quantity: stock, updated_at: new Date().toISOString() }).eq('id', id);
+        setStatus(error ? error.message : 'বই আপডেট হয়েছে ✓', !!error);
+      });
+    });
+    document.querySelectorAll('[data-toggle-book]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        var newVal = !(btn.dataset.enabled === 'true');
+        var { error } = await sb.from('books').update({ is_enabled: newVal, updated_at: new Date().toISOString() }).eq('id', btn.dataset.toggleBook);
+        setStatus(error ? error.message : 'আপডেট হয়েছে ✓', !!error);
+        loadBsBooks();
+      });
+    });
+    document.querySelectorAll('[data-del-book]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        if(!confirm('এই বই মুছে ফেলবে?')) return;
+        var { error } = await sb.from('books').delete().eq('id', btn.dataset.delBook);
+        setStatus(error ? error.message : 'মুছে ফেলা হয়েছে', !!error);
+        loadBsBooks();
+      });
+    });
+    document.querySelectorAll('[data-view-full-pdf]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        var { data, error } = await sb.storage.from('book-full').createSignedUrl(btn.dataset.viewFullPdf, 120);
+        if(error){ alert('খোলা যায়নি: '+error.message); return; }
+        window.open(data.signedUrl, '_blank');
+      });
+    });
+  }
+  document.getElementById('bkAddBtn').addEventListener('click', async function(){
+    var topicId = document.getElementById('bkNewTopic').value;
+    var title = document.getElementById('bkNewTitle').value.trim();
+    var slug = document.getElementById('bkNewSlug').value.trim();
+    if(!topicId){ alert('আগে একটা টপিক যোগ করো।'); return; }
+    if(!title || !slug){ alert('বইয়ের নাম ও slug দাও।'); return; }
+    var btn = this;
+    btn.disabled = true;
+    setStatus('বই যোগ হচ্ছে...', false);
+    try{
+      var coverUrl = null, previewUrl = null, fullPath = null;
+      var coverFile = document.getElementById('bkNewCover').files[0];
+      var previewFile = document.getElementById('bkNewPreviewPdf').files[0];
+      var fullFile = document.getElementById('bkNewFullPdf').files[0];
+      if(coverFile){
+        var cExt = (coverFile.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+        var cName = slug + '_cover_' + Date.now() + '.' + cExt;
+        var up1 = await sb.storage.from('book-covers').upload(cName, coverFile, { upsert:false });
+        if(up1.error) throw up1.error;
+        coverUrl = sb.storage.from('book-covers').getPublicUrl(cName).data.publicUrl;
+      }
+      if(previewFile){
+        var pName = slug + '_preview_' + Date.now() + '.pdf';
+        var up2 = await sb.storage.from('book-previews').upload(pName, previewFile, { upsert:false });
+        if(up2.error) throw up2.error;
+        previewUrl = sb.storage.from('book-previews').getPublicUrl(pName).data.publicUrl;
+      }
+      if(fullFile){
+        var fName = slug + '_full_' + Date.now() + '.pdf';
+        var up3 = await sb.storage.from('book-full').upload(fName, fullFile, { upsert:false });
+        if(up3.error) throw up3.error;
+        fullPath = fName;
+      }
+      var payload = {
+        topic_id: topicId, slug: slug, title: title,
+        series_name: document.getElementById('bkNewSeries').value.trim() || 'রসায়ন পিডিয়া',
+        author: document.getElementById('bkNewAuthor').value.trim() || 'SHIHAB',
+        short_description: document.getElementById('bkNewDesc').value.trim() || null,
+        price: Number(document.getElementById('bkNewPrice').value)||0,
+        stock_quantity: Number(document.getElementById('bkNewStock').value)||0,
+        low_stock_threshold: Number(document.getElementById('bkNewLowStock').value)||3,
+        sku: document.getElementById('bkNewSku').value.trim() || null,
+        edition: document.getElementById('bkNewEdition').value.trim() || null,
+        page_count: Number(document.getElementById('bkNewPages').value) || null,
+        cover_image_url: coverUrl, preview_pdf_url: previewUrl, full_pdf_path: fullPath,
+        is_featured: document.getElementById('bkNewFeatured').checked,
+        is_bestseller: document.getElementById('bkNewBestseller').checked,
+        is_new: document.getElementById('bkNewIsNew').checked,
+        is_enabled: document.getElementById('bkNewEnabled').checked
+      };
+      var { error } = await sb.from('books').insert(payload);
+      if(error) throw error;
+      setStatus('বই যোগ হয়েছে ✓', false);
+      ['bkNewTitle','bkNewSlug','bkNewDesc','bkNewSku','bkNewEdition','bkNewPages'].forEach(function(id){ document.getElementById(id).value=''; });
+      document.getElementById('bkNewCover').value=''; document.getElementById('bkNewPreviewPdf').value=''; document.getElementById('bkNewFullPdf').value='';
+      loadBsBooks();
+    }catch(e){
+      setStatus('বই যোগ করা যায়নি: '+(e.message||e), true);
+    }
+    btn.disabled = false;
+  });
+
+  /* ---- Orders ---- */
+  async function loadBsOrders(){
+    var { data, error } = await sb.from('book_orders').select('*, book_order_items(*)').order('created_at', { ascending:false });
+    var box = document.getElementById('bsOrdersList');
+    if(error){ box.innerHTML = '<p style="color:var(--accent-2); font-size:13px;">'+error.message+'</p>'; return; }
+    var orders = data || [];
+    if(!orders.length){ box.innerHTML = '<p style="font-size:13px; color:var(--ink-soft);">এখনো কোনো অর্ডার আসেনি।</p>'; return; }
+    box.innerHTML = orders.map(function(o){
+      var items = (o.book_order_items||[]).map(function(it){
+        return '<div style="font-size:12.5px; padding:4px 0; border-bottom:1px dashed var(--line);">'+escapeHtml(it.book_title_snapshot)+' × '+it.quantity+' = ৳'+it.line_total+'</div>';
+      }).join('');
+      var screenshotBtn = o.payment_screenshot_path ? '<button class="btn-ghost" data-view-screenshot="'+escapeHtml(o.payment_screenshot_path)+'" style="font-size:11px; padding:4px 8px;">📷 স্ক্রিনশট দেখো</button>' : '';
+      return '<div class="card" style="background:var(--surface-2); margin-bottom:14px;">'+
+        '<div class="row" style="align-items:center; justify-content:space-between;">'+
+          '<b>#'+escapeHtml(o.order_number)+'</b>'+
+          '<span style="font-size:12px; color:var(--ink-soft);">'+new Date(o.created_at).toLocaleString('bn-BD')+'</span>'+
+        '</div>'+
+        '<p style="font-size:13.5px; margin:6px 0;">👤 '+escapeHtml(o.customer_name)+' · 📞 '+escapeHtml(o.customer_phone)+'</p>'+
+        '<p style="font-size:12.5px; color:var(--ink-soft); margin:4px 0;">📍 '+escapeHtml([o.house_building,o.address_line,o.upazila,o.district,o.division].filter(Boolean).join(', '))+'</p>'+
+        '<div style="margin:8px 0;">'+items+'</div>'+
+        '<p style="font-size:13px; margin:6px 0;">সাবটোটাল ৳'+o.subtotal+' + ডেলিভারি ৳'+o.delivery_charge+' = <b>মোট ৳'+o.total+'</b></p>'+
+        '<p style="font-size:12.5px; margin:4px 0;">💳 '+escapeHtml(o.payment_method)+(o.transaction_id?(' · TrxID: '+escapeHtml(o.transaction_id)):'')+(o.sender_phone?(' · প্রেরক: '+escapeHtml(o.sender_phone)):'')+' '+screenshotBtn+'</p>'+
+        '<div class="row">'+
+          '<div><label>পেমেন্ট স্ট্যাটাস</label><select data-pay-status="'+o.id+'">'+Object.keys(PAY_LABEL).map(function(k){ return '<option value="'+k+'"'+(k===o.payment_status?' selected':'')+'>'+PAY_LABEL[k]+'</option>'; }).join('')+'</select></div>'+
+          '<div><label>অর্ডার স্ট্যাটাস</label><select data-order-status="'+o.id+'">'+Object.keys(ORDER_LABEL).map(function(k){ return '<option value="'+k+'"'+(k===o.order_status?' selected':'')+'>'+ORDER_LABEL[k]+'</option>'; }).join('')+'</select></div>'+
+        '</div>'+
+        '<div class="row">'+
+          '<div><label>কুরিয়ারের নাম</label><input type="text" value="'+escapeHtml(o.courier_name||'')+'" data-courier-name="'+o.id+'"></div>'+
+          '<div><label>ট্র্যাকিং আইডি</label><input type="text" value="'+escapeHtml(o.tracking_id||'')+'" data-tracking-id="'+o.id+'"></div>'+
+        '</div>'+
+        '<button class="btn-primary" data-save-order="'+o.id+'" style="font-size:13px; padding:7px 14px;">অর্ডার আপডেট সেভ করো</button>'+
+      '</div>';
+    }).join('');
+    document.querySelectorAll('[data-save-order]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        var id = btn.dataset.saveOrder;
+        var payload = {
+          payment_status: document.querySelector('[data-pay-status="'+id+'"]').value,
+          order_status: document.querySelector('[data-order-status="'+id+'"]').value,
+          courier_name: document.querySelector('[data-courier-name="'+id+'"]').value.trim() || null,
+          tracking_id: document.querySelector('[data-tracking-id="'+id+'"]').value.trim() || null,
+          updated_at: new Date().toISOString()
+        };
+        var { error } = await sb.from('book_orders').update(payload).eq('id', id);
+        setStatus(error ? error.message : 'অর্ডার আপডেট হয়েছে ✓', !!error);
+      });
+    });
+    document.querySelectorAll('[data-view-screenshot]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        var { data, error } = await sb.storage.from('payment-proofs').createSignedUrl(btn.dataset.viewScreenshot, 120);
+        if(error){ alert('খোলা যায়নি: '+error.message); return; }
+        window.open(data.signedUrl, '_blank');
+      });
+    });
+  }
+
+  /* ---- Payment settings + delivery rules ---- */
+  async function loadPaymentSettings(){
+    var { data, error } = await sb.from('book_payment_settings').select('*').eq('id',1).maybeSingle();
+    if(error || !data) return;
+    document.getElementById('psBkashEnabled').checked = !!data.bkash_enabled;
+    document.getElementById('psNagadEnabled').checked = !!data.nagad_enabled;
+    document.getElementById('psBkashNumber').value = data.bkash_number || '';
+    document.getElementById('psNagadNumber').value = data.nagad_number || '';
+    document.getElementById('psBkashInstructions').value = data.bkash_instructions || '';
+    document.getElementById('psNagadInstructions').value = data.nagad_instructions || '';
+  }
+  document.getElementById('psSaveBtn').addEventListener('click', async function(){
+    var payload = {
+      id: 1,
+      bkash_enabled: document.getElementById('psBkashEnabled').checked,
+      nagad_enabled: document.getElementById('psNagadEnabled').checked,
+      bkash_number: document.getElementById('psBkashNumber').value.trim(),
+      nagad_number: document.getElementById('psNagadNumber').value.trim(),
+      bkash_instructions: document.getElementById('psBkashInstructions').value.trim(),
+      nagad_instructions: document.getElementById('psNagadInstructions').value.trim(),
+      updated_at: new Date().toISOString()
+    };
+    var { error } = await sb.from('book_payment_settings').upsert(payload);
+    setStatus(error ? error.message : 'পেমেন্ট সেটিংস সেভ হয়েছে ✓', !!error);
+  });
+
+  async function loadDeliveryRules(){
+    var { data, error } = await sb.from('book_delivery_rules').select('*').order('sort_order');
+    if(error) return;
+    document.getElementById('drTable').innerHTML = (data||[]).map(function(r){
+      return '<tr><td>'+escapeHtml(r.zone_label)+'</td>'+
+        '<td><input type="number" value="'+r.charge+'" data-dr-charge="'+r.id+'" style="width:90px; margin:0;"></td>'+
+        '<td><button class="btn-ghost" data-save-dr="'+r.id+'" style="font-size:11px; padding:4px 8px;">সেভ</button></td></tr>';
+    }).join('');
+    document.querySelectorAll('[data-save-dr]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        var id = btn.dataset.saveDr;
+        var charge = Number(document.querySelector('[data-dr-charge="'+id+'"]').value)||0;
+        var { error } = await sb.from('book_delivery_rules').update({ charge: charge }).eq('id', id);
+        setStatus(error ? error.message : 'ডেলিভারি চার্জ আপডেট হয়েছে ✓', !!error);
+      });
+    });
+  }
 
   refreshAuthUI();
 })();
